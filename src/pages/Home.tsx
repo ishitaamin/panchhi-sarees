@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon } from 'lucide-react';
@@ -127,8 +126,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Occasion
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
-                  <div className="grid gap-3 p-6 w-[300px] bg-white">
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
                     <NavigationMenuLink asChild>
                       <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded">Wedding</Link>
                     </NavigationMenuLink>
@@ -152,8 +151,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Age
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
-                  <div className="grid gap-3 p-6 w-[300px] bg-white">
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
                     <NavigationMenuLink asChild>
                       <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded">Kids (2-12 years)</Link>
                     </NavigationMenuLink>
@@ -177,8 +176,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Fabric
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
-                  <div className="grid gap-3 p-6 w-[300px] bg-white">
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
                     <NavigationMenuLink asChild>
                       <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded">Silk</Link>
                     </NavigationMenuLink>
@@ -205,8 +204,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Category
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
-                  <div className="grid gap-3 p-6 w-[300px] bg-white">
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
                     <NavigationMenuLink asChild>
                       <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded">Sarees</Link>
                     </NavigationMenuLink>
@@ -357,16 +356,6 @@ const Home = () => {
             
             <CarouselPrevious className="left-4" />
             <CarouselNext className="right-4" />
-            
-            {/* Custom indicators */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {clientDiaries.map((_, index) => (
-                <div
-                  key={index}
-                  className="w-2 h-2 rounded-full bg-gray-300 hover:bg-[#f15a59] transition-colors cursor-pointer"
-                ></div>
-              ))}
-            </div>
           </Carousel>
         </div>
       </section>
