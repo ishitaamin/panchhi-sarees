@@ -9,6 +9,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import productsData from '../data/products.json';
 
 const Home = () => {
@@ -60,35 +68,19 @@ const Home = () => {
   const clientDiaries = [
     {
       id: 1,
-      name: "Priya Sharma",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop",
-      review: "The saree I bought for my wedding was absolutely stunning. The quality and craftsmanship exceeded my expectations!",
-      rating: 5,
-      occasion: "Wedding"
+      image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=400&fit=crop",
     },
     {
       id: 2,
-      name: "Anita Patel",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      review: "Found the perfect lehenga for my daughter's engagement. The team was so helpful in selecting the right size and color.",
-      rating: 5,
-      occasion: "Engagement"
+      image: "https://images.unsplash.com/photo-1595777216528-85527e5f2d4c?w=800&h=400&fit=crop",
     },
     {
       id: 3,
-      name: "Ritu Gupta",
-      image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=400&fit=crop",
-      review: "Love shopping here! The collection of kurtis is amazing and the prices are very reasonable. Highly recommended!",
-      rating: 5,
-      occasion: "Festival"
+      image: "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=800&h=400&fit=crop",
     },
     {
       id: 4,
-      name: "Meera Singh",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-      review: "The bridal collection is breathtaking. I felt like a princess on my special day. Thank you Panchhi Sarees!",
-      rating: 5,
-      occasion: "Wedding"
+      image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=400&fit=crop",
     }
   ];
 
@@ -128,32 +120,112 @@ const Home = () => {
       {/* Shop by Dropdown Bar */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center space-x-8 py-4 text-sm font-medium overflow-x-auto">
-            <div className="group relative">
-              <button className="flex items-center space-x-1 text-[#20283a] hover:text-[#f15a59] transition-colors">
-                <span>Shop by Occasion</span>
-                <ChevronRight className="h-4 w-4 group-hover:rotate-90 transition-transform" />
-              </button>
-            </div>
-            <div className="group relative">
-              <button className="flex items-center space-x-1 text-[#20283a] hover:text-[#f15a59] transition-colors">
-                <span>Shop by Age</span>
-                <ChevronRight className="h-4 w-4 group-hover:rotate-90 transition-transform" />
-              </button>
-            </div>
-            <div className="group relative">
-              <button className="flex items-center space-x-1 text-[#20283a] hover:text-[#f15a59] transition-colors">
-                <span>Shop by Fabric</span>
-                <ChevronRight className="h-4 w-4 group-hover:rotate-90 transition-transform" />
-              </button>
-            </div>
-            <div className="group relative">
-              <button className="flex items-center space-x-1 text-[#20283a] hover:text-[#f15a59] transition-colors">
-                <span>Shop by Category</span>
-                <ChevronRight className="h-4 w-4 group-hover:rotate-90 transition-transform" />
-              </button>
-            </div>
-          </div>
+          <NavigationMenu className="flex items-center justify-center py-4">
+            <NavigationMenuList className="space-x-8">
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
+                  Shop by Occasion
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded">Wedding</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/party" className="block px-4 py-2 hover:bg-gray-100 rounded">Party</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/festival" className="block px-4 py-2 hover:bg-gray-100 rounded">Festival</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/casual" className="block px-4 py-2 hover:bg-gray-100 rounded">Casual</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/office" className="block px-4 py-2 hover:bg-gray-100 rounded">Office</Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
+                  Shop by Age
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded">Kids (2-12 years)</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded">Teen (13-19 years)</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/young-adult" className="block px-4 py-2 hover:bg-gray-100 rounded">Young Adult (20-35 years)</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded">Adult (36-50 years)</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/senior" className="block px-4 py-2 hover:bg-gray-100 rounded">Senior (50+ years)</Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
+                  Shop by Fabric
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded">Silk</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/cotton" className="block px-4 py-2 hover:bg-gray-100 rounded">Cotton</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/chiffon" className="block px-4 py-2 hover:bg-gray-100 rounded">Chiffon</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/georgette" className="block px-4 py-2 hover:bg-gray-100 rounded">Georgette</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/net" className="block px-4 py-2 hover:bg-gray-100 rounded">Net</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/velvet" className="block px-4 py-2 hover:bg-gray-100 rounded">Velvet</Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
+                  Shop by Category
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded">Sarees</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded">Lehengas</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/kurtis" className="block px-4 py-2 hover:bg-gray-100 rounded">Kurtis</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded">Bridal Wear</Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/category/accessories" className="block px-4 py-2 hover:bg-gray-100 rounded">Accessories</Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
       </div>
 
@@ -256,48 +328,41 @@ const Home = () => {
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-[#20283a] mb-8">Client Diaries</h2>
-          <p className="text-center text-gray-600 mb-8">Hear what our beautiful customers have to say about their Panchhi experience</p>
+          <p className="text-center text-gray-600 mb-8">Discover the stories behind our beautiful collections</p>
           
           <Carousel
             opts={{
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-5xl mx-auto"
+            className="w-full max-w-4xl mx-auto"
           >
             <CarouselContent>
-              {clientDiaries.map((client) => (
-                <CarouselItem key={client.id} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-4">
-                    <div className="bg-gradient-to-br from-[#f15a59]/5 to-[#20283a]/5 rounded-lg p-6 h-full border border-gray-100 hover:shadow-lg transition-shadow duration-300">
-                      <div className="flex items-center mb-4">
-                        <img
-                          src={client.image}
-                          alt={client.name}
-                          className="w-16 h-16 rounded-full object-cover border-2 border-[#f15a59]"
-                        />
-                        <div className="ml-4">
-                          <h4 className="font-semibold text-[#20283a]">{client.name}</h4>
-                          <span className="text-sm text-[#f15a59] font-medium">{client.occasion}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex mb-3">
-                        {[...Array(client.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-[#f15a59] text-[#f15a59]" />
-                        ))}
-                      </div>
-                      
-                      <p className="text-gray-700 text-sm leading-relaxed italic">
-                        "{client.review}"
-                      </p>
+              {clientDiaries.map((diary) => (
+                <CarouselItem key={diary.id}>
+                  <div className="p-2">
+                    <div className="relative rounded-lg overflow-hidden group">
+                      <img
+                        src={diary.image}
+                        alt={`Client Story ${diary.id}`}
+                        className="w-full h-64 md:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     </div>
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="text-[#20283a] hover:text-[#f15a59] border-[#20283a] hover:border-[#f15a59]" />
-            <CarouselNext className="text-[#20283a] hover:text-[#f15a59] border-[#20283a] hover:border-[#f15a59]" />
+            
+            {/* Custom indicators */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {clientDiaries.map((_, index) => (
+                <div
+                  key={index}
+                  className="w-2 h-2 rounded-full bg-gray-300 hover:bg-[#f15a59] transition-colors cursor-pointer"
+                ></div>
+              ))}
+            </div>
           </Carousel>
         </div>
       </section>
