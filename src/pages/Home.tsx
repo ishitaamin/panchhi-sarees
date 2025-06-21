@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon } from 'lucide-react';
@@ -119,15 +120,15 @@ const Home = () => {
 
       {/* Shop by Dropdown Bar */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <NavigationMenu className="flex items-center justify-center py-4">
-            <NavigationMenuList className="space-x-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+          <NavigationMenu className="py-4">
+            <NavigationMenuList className="flex items-center justify-center space-x-8">
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Occasion
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
+                  <div className="grid gap-3 p-6 w-[300px] bg-white">
                     <NavigationMenuLink asChild>
                       <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded">Wedding</Link>
                     </NavigationMenuLink>
@@ -151,8 +152,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Age
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
+                  <div className="grid gap-3 p-6 w-[300px] bg-white">
                     <NavigationMenuLink asChild>
                       <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded">Kids (2-12 years)</Link>
                     </NavigationMenuLink>
@@ -176,8 +177,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Fabric
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
+                  <div className="grid gap-3 p-6 w-[300px] bg-white">
                     <NavigationMenuLink asChild>
                       <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded">Silk</Link>
                     </NavigationMenuLink>
@@ -204,8 +205,8 @@ const Home = () => {
                 <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
                   Shop by Category
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[400px] bg-white">
+                <NavigationMenuContent className="absolute left-1/2 transform -translate-x-1/2">
+                  <div className="grid gap-3 p-6 w-[300px] bg-white">
                     <NavigationMenuLink asChild>
                       <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded">Sarees</Link>
                     </NavigationMenuLink>
@@ -335,7 +336,7 @@ const Home = () => {
               align: "start",
               loop: true,
             }}
-            className="w-full max-w-4xl mx-auto"
+            className="w-full max-w-4xl mx-auto relative"
           >
             <CarouselContent>
               {clientDiaries.map((diary) => (
@@ -353,6 +354,9 @@ const Home = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
+            
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
             
             {/* Custom indicators */}
             <div className="flex justify-center mt-6 space-x-2">
