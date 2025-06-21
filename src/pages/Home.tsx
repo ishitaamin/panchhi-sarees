@@ -1,8 +1,14 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import productsData from '../data/products.json';
 
 const Home = () => {
@@ -48,6 +54,41 @@ const Home = () => {
       image: '../assets/images/4.png',
       link: '/category/bridal',
       description: 'Your Special Day'
+    }
+  ];
+
+  const clientDiaries = [
+    {
+      id: 1,
+      name: "Priya Sharma",
+      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop",
+      review: "The saree I bought for my wedding was absolutely stunning. The quality and craftsmanship exceeded my expectations!",
+      rating: 5,
+      occasion: "Wedding"
+    },
+    {
+      id: 2,
+      name: "Anita Patel",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      review: "Found the perfect lehenga for my daughter's engagement. The team was so helpful in selecting the right size and color.",
+      rating: 5,
+      occasion: "Engagement"
+    },
+    {
+      id: 3,
+      name: "Ritu Gupta",
+      image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=400&fit=crop",
+      review: "Love shopping here! The collection of kurtis is amazing and the prices are very reasonable. Highly recommended!",
+      rating: 5,
+      occasion: "Festival"
+    },
+    {
+      id: 4,
+      name: "Meera Singh",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      review: "The bridal collection is breathtaking. I felt like a princess on my special day. Thank you Panchhi Sarees!",
+      rating: 5,
+      occasion: "Wedding"
     }
   ];
 
@@ -188,6 +229,76 @@ const Home = () => {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Shop Gallery */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-[#20283a] mb-8">Visit Our Store</h2>
+          <div className="relative rounded-lg overflow-hidden shadow-xl group">
+            <img
+              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop"
+              alt="Panchhi Sarees Store Interior"
+              className="w-full h-64 md:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
+              <div className="p-6 text-white">
+                <h3 className="text-2xl font-bold mb-2">Experience Traditional Elegance</h3>
+                <p className="text-lg opacity-90">Visit our beautiful store in Vadodara for personalized styling and expert guidance</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Client Diaries Carousel */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-[#20283a] mb-8">Client Diaries</h2>
+          <p className="text-center text-gray-600 mb-8">Hear what our beautiful customers have to say about their Panchhi experience</p>
+          
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full max-w-5xl mx-auto"
+          >
+            <CarouselContent>
+              {clientDiaries.map((client) => (
+                <CarouselItem key={client.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-4">
+                    <div className="bg-gradient-to-br from-[#f15a59]/5 to-[#20283a]/5 rounded-lg p-6 h-full border border-gray-100 hover:shadow-lg transition-shadow duration-300">
+                      <div className="flex items-center mb-4">
+                        <img
+                          src={client.image}
+                          alt={client.name}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-[#f15a59]"
+                        />
+                        <div className="ml-4">
+                          <h4 className="font-semibold text-[#20283a]">{client.name}</h4>
+                          <span className="text-sm text-[#f15a59] font-medium">{client.occasion}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex mb-3">
+                        {[...Array(client.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-[#f15a59] text-[#f15a59]" />
+                        ))}
+                      </div>
+                      
+                      <p className="text-gray-700 text-sm leading-relaxed italic">
+                        "{client.review}"
+                      </p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="text-[#20283a] hover:text-[#f15a59] border-[#20283a] hover:border-[#f15a59]" />
+            <CarouselNext className="text-[#20283a] hover:text-[#f15a59] border-[#20283a] hover:border-[#f15a59]" />
+          </Carousel>
         </div>
       </section>
 
