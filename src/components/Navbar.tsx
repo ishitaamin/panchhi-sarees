@@ -22,13 +22,14 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#f15a59] to-[#20283a] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <span className="text-2xl font-bold text-[#20283a]">Panchhi Sarees</span>
+            <img
+              src="/assets/images/PanchhiLogo.png"
+              alt="Panchhi Sarees Logo"
+              className="h-14 w-auto max-w-full object-contain"
+            />
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -55,7 +56,7 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            
+
             {isAuthenticated ? (
               <Link to="/account" className="flex items-center space-x-2 p-2 text-[#20283a] hover:text-[#f15a59] transition-colors">
                 <User className="h-6 w-6" />
@@ -93,7 +94,7 @@ const Navbar = () => {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
             </form>
-            
+
             <div className="flex flex-col space-y-2">
               <Link
                 to="/cart"
@@ -103,7 +104,7 @@ const Navbar = () => {
                 <ShoppingCart className="h-5 w-5" />
                 <span>Cart ({getTotalItems()})</span>
               </Link>
-              
+
               {isAuthenticated ? (
                 <Link
                   to="/account"

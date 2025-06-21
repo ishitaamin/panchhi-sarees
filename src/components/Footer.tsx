@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -13,18 +13,22 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-[#f15a59]" />
-                <span>+91 9876543210</span>
+                <a href="tel:+916351022494" className="hover:text-[#f15a59] text-[#fff]">
+                  +91 6351022494
+                </a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-[#f15a59]" />
-                <span>info@panchhi-sarees.com</span>
+                <a href="mailto:panchhisarees@gmail.com" className="hover:text-[#f15a59] text-[#fff]">
+                  panchhisarees@gmail.com
+                </a>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-[#f15a59] mt-1" />
                 <div>
-                  <p>123 Fashion Street,</p>
-                  <p>Textile Market, Mumbai - 400001</p>
-                  <p>Maharashtra, India</p>
+                  <p>GF-10, Sukun Ananta Complex,</p>
+                  <p>Near Muktanand Circle,</p>
+                  <p>Karelibaug, Vadodara - 390018.</p>
                 </div>
               </div>
             </div>
@@ -48,7 +52,7 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4 text-[#f15a59]">Visit Our Store</h3>
             <div className="mb-6">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3772.1234567890123!2d72.8777!3d19.0760!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDA0JzMzLjYiTiA3MsKwNTInMzkuNyJF!5e0!3m2!1sen!2sin!4v1234567890123"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3690.8533274413867!2d73.19537747514296!3d22.32138617967146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fcf473d3e3c61%3A0xccb37754da421c69!2sPanchhi%20Saree!5e0!3m2!1sen!2sin!4v1750505049254!5m2!1sen!2sin"
                 width="100%"
                 height="150"
                 style={{ border: 0 }}
@@ -58,24 +62,24 @@ const Footer = () => {
                 className="rounded-lg"
               ></iframe>
             </div>
-            
+
             <h4 className="font-semibold mb-3">Follow Us</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-[#f15a59] hover:text-white transition-colors">
-                <Facebook className="h-6 w-6" />
-              </a>
-              <a href="#" className="text-[#f15a59] hover:text-white transition-colors">
+              <a href="https://www.instagram.com/panchhi.saree/#" className="text-[#f15a59] hover:text-white transition-colors">
                 <Instagram className="h-6 w-6" />
               </a>
-              <a href="#" className="text-[#f15a59] hover:text-white transition-colors">
-                <Twitter className="h-6 w-6" />
+              <a href="https://www.facebook.com/people/Panchhi-saree/100063773695979/?mibextid=ZbWKwL" className="text-[#f15a59] hover:text-white transition-colors">
+                <Facebook className="h-6 w-6" />
+              </a>
+              <a href="https://www.youtube.com/@dhruvikaliya4037" className="text-[#f15a59] hover:text-white transition-colors">
+                <Youtube className="h-6 w-6" />
               </a>
             </div>
           </div>
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-          <p>&copy; 2024 Panchhi Sarees. All rights reserved. Made with ❤️ for traditional fashion lovers.</p>
+          <p>&copy; 2025 Panchhi Sarees. All rights reserved. Made with ❤️ by <a href="https://dhyeybhandari.vercel.app">Dhyey Bhandari</a></p>
         </div>
       </div>
     </footer>

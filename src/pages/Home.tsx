@@ -27,25 +27,25 @@ const Home = () => {
   const categories = [
     {
       name: 'Sarees',
-      image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=300&h=300&fit=crop',
+      image: '../assets/images/1.png',
       link: '/category/sarees',
       description: 'Traditional & Designer'
     },
     {
       name: 'Kurtis',
-      image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=300&h=300&fit=crop',
+      image: '../assets/images/2.png',
       link: '/category/kurtis',
       description: 'Casual & Festive'
     },
     {
       name: 'Lehengas',
-      image: 'https://images.unsplash.com/photo-1595777216528-85527e5f2d4c?w=300&h=300&fit=crop',
+      image: '../assets/images/3.png',
       link: '/category/lehengas',
       description: 'Wedding & Party'
     },
     {
       name: 'Bridal Wear',
-      image: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=300&fit=crop',
+      image: '../assets/images/4.png',
       link: '/category/bridal',
       description: 'Your Special Day'
     }
@@ -153,7 +153,7 @@ const Home = () => {
                 to={category.link}
                 className="group text-center hover:scale-105 transition-transform duration-300"
               >
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 mx-auto mb-4 rounded-full overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
                   <img
                     src={category.image}
                     alt={category.name}
@@ -198,7 +198,7 @@ const Home = () => {
             <div className="text-center">
               <Truck className="h-12 w-12 mx-auto mb-4 text-[#f15a59]" />
               <h3 className="font-semibold mb-2">Free Shipping</h3>
-              <p className="text-sm text-gray-300">On orders above ₹999</p>
+              <p className="text-sm text-gray-300">On orders above ₹1999</p>
             </div>
             <div className="text-center">
               <Shield className="h-12 w-12 mx-auto mb-4 text-[#f15a59]" />
