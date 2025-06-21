@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon } from 'lucide-react';
+import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import {
   Carousel,
@@ -10,13 +10,10 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import productsData from '../data/products.json';
 
 const Home = () => {
@@ -120,112 +117,76 @@ const Home = () => {
       {/* Shop by Dropdown Bar */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
-          <NavigationMenu className="py-4">
-            <NavigationMenuList className="flex items-center justify-center space-x-8">
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
-                  Shop by Occasion
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded">Wedding</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/party" className="block px-4 py-2 hover:bg-gray-100 rounded">Party</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/festival" className="block px-4 py-2 hover:bg-gray-100 rounded">Festival</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/casual" className="block px-4 py-2 hover:bg-gray-100 rounded">Casual</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/office" className="block px-4 py-2 hover:bg-gray-100 rounded">Office</Link>
-                    </NavigationMenuLink>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+          <div className="py-4 flex items-center justify-center space-x-8">
+            {/* Shop by Occasion */}
+            <Popover>
+              <PopoverTrigger className="flex items-center text-[#20283a] hover:text-[#f15a59] text-sm font-medium transition-colors">
+                Shop by Occasion
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="center">
+                <div className="grid gap-1 p-4">
+                  <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Wedding</Link>
+                  <Link to="/category/party" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Party</Link>
+                  <Link to="/category/festival" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Festival</Link>
+                  <Link to="/category/casual" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Casual</Link>
+                  <Link to="/category/office" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Office</Link>
+                </div>
+              </PopoverContent>
+            </Popover>
 
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
-                  Shop by Age
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded">Kids (2-12 years)</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded">Teen (13-19 years)</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/young-adult" className="block px-4 py-2 hover:bg-gray-100 rounded">Young Adult (20-35 years)</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded">Adult (36-50 years)</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/senior" className="block px-4 py-2 hover:bg-gray-100 rounded">Senior (50+ years)</Link>
-                    </NavigationMenuLink>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+            {/* Shop by Age */}
+            <Popover>
+              <PopoverTrigger className="flex items-center text-[#20283a] hover:text-[#f15a59] text-sm font-medium transition-colors">
+                Shop by Age
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="center">
+                <div className="grid gap-1 p-4">
+                  <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Kids (2-12 years)</Link>
+                  <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Teen (13-19 years)</Link>
+                  <Link to="/category/young-adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Young Adult (20-35 years)</Link>
+                  <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Adult (36-50 years)</Link>
+                  <Link to="/category/senior" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Senior (50+ years)</Link>
+                </div>
+              </PopoverContent>
+            </Popover>
 
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
-                  Shop by Fabric
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded">Silk</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/cotton" className="block px-4 py-2 hover:bg-gray-100 rounded">Cotton</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/chiffon" className="block px-4 py-2 hover:bg-gray-100 rounded">Chiffon</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/georgette" className="block px-4 py-2 hover:bg-gray-100 rounded">Georgette</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/net" className="block px-4 py-2 hover:bg-gray-100 rounded">Net</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/velvet" className="block px-4 py-2 hover:bg-gray-100 rounded">Velvet</Link>
-                    </NavigationMenuLink>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+            {/* Shop by Fabric */}
+            <Popover>
+              <PopoverTrigger className="flex items-center text-[#20283a] hover:text-[#f15a59] text-sm font-medium transition-colors">
+                Shop by Fabric
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="center">
+                <div className="grid gap-1 p-4">
+                  <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Silk</Link>
+                  <Link to="/category/cotton" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Cotton</Link>
+                  <Link to="/category/chiffon" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Chiffon</Link>
+                  <Link to="/category/georgette" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Georgette</Link>
+                  <Link to="/category/net" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Net</Link>
+                  <Link to="/category/velvet" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Velvet</Link>
+                </div>
+              </PopoverContent>
+            </Popover>
 
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[#20283a] hover:text-[#f15a59] text-sm font-medium">
-                  Shop by Category
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[300px] bg-white shadow-lg border rounded-md">
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded">Sarees</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded">Lehengas</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/kurtis" className="block px-4 py-2 hover:bg-gray-100 rounded">Kurtis</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded">Bridal Wear</Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/category/accessories" className="block px-4 py-2 hover:bg-gray-100 rounded">Accessories</Link>
-                    </NavigationMenuLink>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+            {/* Shop by Category */}
+            <Popover>
+              <PopoverTrigger className="flex items-center text-[#20283a] hover:text-[#f15a59] text-sm font-medium transition-colors">
+                Shop by Category
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="center">
+                <div className="grid gap-1 p-4">
+                  <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Sarees</Link>
+                  <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Lehengas</Link>
+                  <Link to="/category/kurtis" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Kurtis</Link>
+                  <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Bridal Wear</Link>
+                  <Link to="/category/accessories" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm">Accessories</Link>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
 
