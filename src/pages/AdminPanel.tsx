@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, LogOut } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, LogOut, ExternalLink, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -36,6 +36,7 @@ const AdminPanel = () => {
       description: "New product has been added successfully.",
     });
     setShowAddProduct(false);
+    setEditingProduct(null);
     setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [] });
   };
 
@@ -64,6 +65,11 @@ const AdminPanel = () => {
     setNewProduct({ ...newProduct, images });
   };
 
+  const handleViewProductOnSite = (category: string) => {
+    const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+    window.open(`/category/${categorySlug}`, '_blank');
+  };
+
   if (!isAdminAuthenticated) {
     return <AdminLogin />;
   }
@@ -76,14 +82,24 @@ const AdminPanel = () => {
             <h1 className="text-3xl font-bold text-[#20283a]">Admin Panel</h1>
             <p className="text-gray-600 mt-2">Welcome, {admin?.username}</p>
           </div>
-          <Button
-            onClick={logoutAdmin}
-            variant="outline"
-            className="flex items-center space-x-2"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Logout</span>
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => window.open('/', '_blank')}
+              variant="outline"
+              className="flex items-center space-x-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>View Website</span>
+            </Button>
+            <Button
+              onClick={logoutAdmin}
+              variant="outline"
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </Button>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
@@ -112,13 +128,42 @@ const AdminPanel = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-[#20283a]">Product Management</h2>
-              <Button
-                onClick={() => setShowAddProduct(true)}
-                className="bg-[#f15a59] hover:bg-[#d63031] text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
+              <div className="flex space-x-3">
+                <Button
+                  onClick={() => window.open('/search', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>View All Products</span>
+                </Button>
+                <Button
+                  onClick={() => setShowAddProduct(true)}
+                  className="bg-[#f15a59] hover:bg-[#d63031] text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </div>
+            </div>
+
+            {/* Recently Added Products Quick Links */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-[#20283a] mb-3">Quick Links - View Products by Category</h3>
+              <div className="flex flex-wrap gap-2">
+                {['Sarees', 'Kurtis', 'Lehengas', 'Bridal Wear'].map((category) => (
+                  <Button
+                    key={category}
+                    onClick={() => handleViewProductOnSite(category)}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    <span>{category}</span>
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* Add/Edit Product Form */}
@@ -255,6 +300,14 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
+                            <Button
+                              onClick={() => handleViewProductOnSite(product.category)}
+                              variant="outline"
+                              size="sm"
+                              title="View on website"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                             <Button variant="outline" size="sm" onClick={() => handleEditProduct(product)}>
                               <Edit className="h-4 w-4" />
                             </Button>
