@@ -65,7 +65,7 @@ const AdminPanel = () => {
   };
 
   if (!isAdminAuthenticated) {
-    return <AdminLogin onSuccess={() => {}} />;
+    return <AdminLogin />;
   }
 
   return (
