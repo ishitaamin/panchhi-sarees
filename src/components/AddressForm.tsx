@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Plus, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Address {
@@ -27,7 +28,10 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
   });
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(() => {
+    const defaultAddress = addresses.find(addr => addr.isDefault);
+    return defaultAddress?.id || '';
+  });
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -57,6 +61,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
       );
     } else {
       updatedAddresses = [...addresses, newAddress];
+      // Auto-select the newly added address
+      setSelectedAddressId(newAddress.id);
+      onAddressSelect?.(newAddress);
     }
 
     // If this is set as default, remove default from others
@@ -113,9 +120,12 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
     });
   };
 
-  const handleAddressSelect = (address: Address) => {
-    setSelectedAddressId(address.id);
-    onAddressSelect?.(address);
+  const handleAddressSelect = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    const address = addresses.find(addr => addr.id === addressId);
+    if (address) {
+      onAddressSelect?.(address);
+    }
   };
 
   return (
@@ -135,59 +145,97 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
 
       {/* Address List */}
       <div className="space-y-3">
-        {addresses.map((address) => (
-          <div
-            key={address.id}
-            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-              showSelection && selectedAddressId === address.id
-                ? 'border-[#f15a59] bg-[#f15a59]/5'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-            onClick={() => showSelection && handleAddressSelect(address)}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <MapPin className="h-4 w-4 text-[#f15a59]" />
-                  <span className="font-semibold">{address.name}</span>
-                  {address.isDefault && (
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                      Default
-                    </span>
-                  )}
+        {showSelection && addresses.length > 1 ? (
+          <RadioGroup value={selectedAddressId} onValueChange={handleAddressSelect}>
+            {addresses.map((address) => (
+              <div
+                key={address.id}
+                className={`p-4 border rounded-lg transition-colors ${
+                  selectedAddressId === address.id
+                    ? 'border-[#f15a59] bg-[#f15a59]/5'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex items-start space-x-3">
+                  <RadioGroupItem value={address.id} className="mt-1" />
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <MapPin className="h-4 w-4 text-[#f15a59]" />
+                      <span className="font-semibold">{address.name}</span>
+                      {address.isDefault && (
+                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      {address.addressLine1}
+                      {address.addressLine2 && `, ${address.addressLine2}`}
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      {address.city}, {address.state} - {address.pincode}
+                    </p>
+                    <p className="text-gray-600 text-sm">Phone: {address.phone}</p>
+                  </div>
                 </div>
-                <p className="text-gray-600 text-sm">
-                  {address.addressLine1}
-                  {address.addressLine2 && `, ${address.addressLine2}`}
-                </p>
-                <p className="text-gray-600 text-sm">
-                  {address.city}, {address.state} - {address.pincode}
-                </p>
-                <p className="text-gray-600 text-sm">Phone: {address.phone}</p>
               </div>
-              
-              {!showSelection && (
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(address)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(address.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+            ))}
+          </RadioGroup>
+        ) : (
+          addresses.map((address) => (
+            <div
+              key={address.id}
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                showSelection && selectedAddressId === address.id
+                  ? 'border-[#f15a59] bg-[#f15a59]/5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => showSelection && handleAddressSelect(address.id)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <MapPin className="h-4 w-4 text-[#f15a59]" />
+                    <span className="font-semibold">{address.name}</span>
+                    {address.isDefault && (
+                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                        Default
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {address.addressLine1}
+                    {address.addressLine2 && `, ${address.addressLine2}`}
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    {address.city}, {address.state} - {address.pincode}
+                  </p>
+                  <p className="text-gray-600 text-sm">Phone: {address.phone}</p>
                 </div>
-              )}
+                
+                {!showSelection && (
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(address)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(address.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Add/Edit Form */}
