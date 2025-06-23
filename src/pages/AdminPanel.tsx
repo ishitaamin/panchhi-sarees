@@ -1,17 +1,23 @@
+
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Upload, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import AdminLogin from '@/components/AdminLogin';
+import ImageUpload from '@/components/ImageUpload';
 
 const AdminPanel = () => {
+  const { admin, isAdminAuthenticated, logoutAdmin } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('products');
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const { toast } = useToast();
 
   const mockProducts = [
-    { id: 1, name: 'Banarasi Silk Saree', category: 'Sarees', price: 15999, stock: 25 },
-    { id: 2, name: 'Cotton Kurti Set', category: 'Kurtis', price: 3999, stock: 40 },
-    { id: 3, name: 'Designer Lehenga', category: 'Lehengas', price: 25999, stock: 15 },
+    { id: 1, name: 'Banarasi Silk Saree', category: 'Sarees', price: 15999, stock: 25, images: [] },
+    { id: 2, name: 'Cotton Kurti Set', category: 'Kurtis', price: 3999, stock: 40, images: [] },
+    { id: 3, name: 'Designer Lehenga', category: 'Lehengas', price: 25999, stock: 15, images: [] },
   ];
 
   const [newProduct, setNewProduct] = useState({
@@ -33,6 +39,20 @@ const AdminPanel = () => {
     setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [] });
   };
 
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      description: product.description || '',
+      fabric: product.fabric || '',
+      images: product.images || []
+    });
+    setShowAddProduct(true);
+  };
+
   const handleDeleteProduct = (id: number) => {
     toast({
       title: "Product Deleted",
@@ -40,12 +60,30 @@ const AdminPanel = () => {
     });
   };
 
+  const handleImageSelect = (images: string[]) => {
+    setNewProduct({ ...newProduct, images });
+  };
+
+  if (!isAdminAuthenticated) {
+    return <AdminLogin onSuccess={() => {}} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#20283a]">Admin Panel</h1>
-          <p className="text-gray-600 mt-2">Manage your Panchhi Sarees inventory</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-[#20283a]">Admin Panel</h1>
+            <p className="text-gray-600 mt-2">Welcome, {admin?.username}</p>
+          </div>
+          <Button
+            onClick={logoutAdmin}
+            variant="outline"
+            className="flex items-center space-x-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Logout</span>
+          </Button>
         </div>
 
         {/* Navigation Tabs */}
@@ -72,7 +110,6 @@ const AdminPanel = () => {
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div className="space-y-6">
-            {/* Add Product Button */}
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-[#20283a]">Product Management</h2>
               <Button
@@ -84,56 +121,61 @@ const AdminPanel = () => {
               </Button>
             </div>
 
-            {/* Add Product Form */}
+            {/* Add/Edit Product Form */}
             {showAddProduct && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-[#20283a] mb-4">Add New Product</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                    <input
-                      type="text"
-                      value={newProduct.name}
-                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      placeholder="Enter product name"
-                    />
+                <h3 className="text-lg font-semibold text-[#20283a] mb-4">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                      <input
+                        type="text"
+                        value={newProduct.name}
+                        onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter product name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                      <select
+                        value={newProduct.category}
+                        onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                      >
+                        <option value="">Select Category</option>
+                        <option value="Sarees">Sarees</option>
+                        <option value="Kurtis">Kurtis</option>
+                        <option value="Lehengas">Lehengas</option>
+                        <option value="Bridal Wear">Bridal Wear</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                      <input
+                        type="number"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter price"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                      <input
+                        type="number"
+                        value={newProduct.stock}
+                        onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter stock quantity"
+                      />
+                    </div>
                   </div>
+                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select
-                      value={newProduct.category}
-                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                    >
-                      <option value="">Select Category</option>
-                      <option value="Sarees">Sarees</option>
-                      <option value="Kurtis">Kurtis</option>
-                      <option value="Lehengas">Lehengas</option>
-                      <option value="Bridal Wear">Bridal Wear</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                    <input
-                      type="number"
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      placeholder="Enter price"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
-                    <input
-                      type="number"
-                      value={newProduct.stock}
-                      onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      placeholder="Enter stock quantity"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                     <textarea
                       value={newProduct.description}
@@ -143,6 +185,7 @@ const AdminPanel = () => {
                       placeholder="Enter product description"
                     />
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Fabric</label>
                     <input
@@ -153,24 +196,24 @@ const AdminPanel = () => {
                       placeholder="Enter fabric type"
                     />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Images
-                      </Button>
-                      <span className="text-sm text-gray-500">0 images selected</span>
-                    </div>
+                    <ImageUpload onImageSelect={handleImageSelect} existingImages={newProduct.images} />
                   </div>
                 </div>
+                
                 <div className="flex space-x-3 mt-6">
                   <Button onClick={handleAddProduct} className="bg-[#f15a59] hover:bg-[#d63031] text-white">
                     <Save className="h-4 w-4 mr-2" />
-                    Save Product
+                    {editingProduct ? 'Update Product' : 'Save Product'}
                   </Button>
                   <Button
-                    onClick={() => setShowAddProduct(false)}
+                    onClick={() => {
+                      setShowAddProduct(false);
+                      setEditingProduct(null);
+                      setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [] });
+                    }}
                     variant="outline"
                   >
                     Cancel
@@ -188,21 +231,11 @@ const AdminPanel = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -222,7 +255,7 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" onClick={() => handleEditProduct(product)}>
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
