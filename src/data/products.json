@@ -1,0 +1,119 @@
+
+[
+  {
+    "id": 1,
+    "name": "Patola Print Pure Silk Saree",
+    "price": 3049,
+    "originalPrice": 5999,
+    "images": [
+      "../assets/images/saree1.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 156,
+    "category": "sarees",
+    "fabric": "silk",
+    "occasion": "wedding",
+    "size": ["Free Size"],
+    "colors": ["Red", "Green"],
+    "description": "Exquisite handwoven Patola saree with intricate gold zari work. Perfect for weddings and special occasions.",
+    "inStock": true,
+    "quantity": 25
+  },
+  {
+    "id": 2,
+    "name": "Peachpuff A-Line Cotton Kurti",
+    "price": 2449,
+    "originalPrice": 3499,
+    "images": [
+      "../assets/images/kurti1.jpg"
+    ],
+    "rating": 4.5,
+    "reviews": 89,
+    "category": "kurtis",
+    "fabric": "cotton",
+    "occasion": "casual",
+    "size": ["S", "M", "L", "XL"],
+    "colors": ["Peach", "Red", "Orange"],
+    "description": "Comfortable cotton kurti with palazzo set. Ideal for daily wear and casual outings.",
+    "inStock": true,
+    "quantity": 50
+  },
+  {
+    "id": 3,
+    "name": "Silk Lehenga with Blouse",
+    "price": 5499,
+    "originalPrice": 9999,
+    "images": [
+      "../assets/images/lehenga1.jpg"
+    ],
+    "rating": 4.9,
+    "reviews": 234,
+    "category": "lehengas",
+    "fabric": "silk",
+    "occasion": "wedding",
+    "size": ["S", "M", "L"],
+    "colors": ["Red", "Gold", "Maroon"],
+    "description": "Stunning bridal lehenga with heavy embroidery and mirror work. A dream outfit for your special day.",
+    "inStock": true,
+    "quantity": 8
+  },
+  {
+    "id": 4,
+    "name": "Bridal Indo-Western Haldi Outfit",
+    "price": 2099,
+    "originalPrice": 2999,
+    "images": [
+      "../assets/images/bridal1.jpg"
+    ],
+    "rating": 4.3,
+    "reviews": 67,
+    "category": "bridal",
+    "fabric": "cotton",
+    "occasion": "wedding",
+    "size": ["S", "M", "L", "XL"],
+    "colors": ["Yellow", "Red"],
+    "description": "Lightweight haldi outfit with beautiful floral prints. Perfect for brides.",
+    "inStock": true,
+    "quantity": 30
+  },
+  {
+    "id": 5,
+    "name": "Festive Anarkali Kurti",
+    "price": 4999,
+    "originalPrice": 6499,
+    "images": [
+      "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=600&h=800&fit=crop"
+    ],
+    "rating": 4.6,
+    "reviews": 112,
+    "category": "kurtis",
+    "fabric": "silk",
+    "occasion": "festival",
+    "size": ["S", "M", "L", "XL", "XXL"],
+    "colors": ["Purple", "Gold"],
+    "description": "Elegant Anarkali kurti with golden embroidery. Perfect for festivals and special occasions.",
+    "inStock": true,
+    "quantity": 20
+  },
+  {
+    "id": 6,
+    "name": "Bridal Reception Saree",
+    "price": 28999,
+    "originalPrice": 34999,
+    "images": [
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=600&h=800&fit=crop"
+    ],
+    "rating": 4.7,
+    "reviews": 189,
+    "category": "bridal",
+    "fabric": "silk",
+    "occasion": "wedding",
+    "size": ["Free Size"],
+    "colors": ["Maroon", "Gold"],
+    "description": "Luxurious bridal saree with intricate beadwork and sequins. Make your reception unforgettable.",
+    "inStock": true,
+    "quantity": 12
+  }
+]
