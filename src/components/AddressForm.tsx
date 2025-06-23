@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MapPin, Plus, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
     
     const newAddress: Address = {
       id: editingAddress?.id || Date.now().toString(),
-      ...formData
+      ...formData,
+      addressLine2: formData.addressLine2 || undefined
     };
 
     let updatedAddresses;
@@ -94,7 +94,10 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
   };
 
   const handleEdit = (address: Address) => {
-    setFormData(address);
+    setFormData({
+      ...address,
+      addressLine2: address.addressLine2 || ''
+    });
     setEditingAddress(address);
     setShowForm(true);
   };
