@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, LogOut } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { getTotalItems } = useCart();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -16,6 +16,11 @@ const Navbar = () => {
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -57,10 +62,19 @@ const Navbar = () => {
             </Link>
 
             {isAuthenticated ? (
-              <Link to="/account" className="flex items-center space-x-2 p-2 text-[#20283a] hover:text-[#f15a59] transition-colors">
-                <User className="h-6 w-6" />
-                <span className="text-sm font-medium">{user?.name}</span>
-              </Link>
+              <>
+                <Link to="/account" className="flex items-center space-x-2 p-2 text-[#20283a] hover:text-[#f15a59] transition-colors">
+                  <User className="h-6 w-6" />
+                  <span className="text-sm font-medium">{user?.name}</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 text-sm font-medium text-[#f15a59] hover:text-[#d63031] transition-colors"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Logout</span>
+                </button>
+              </>
             ) : (
               <Link to="/login" className="flex items-center space-x-2 p-2 text-[#20283a] hover:text-[#f15a59] transition-colors">
                 <User className="h-6 w-6" />
@@ -105,14 +119,26 @@ const Navbar = () => {
               </Link>
 
               {isAuthenticated ? (
-                <Link
-                  to="/account"
-                  className="flex items-center space-x-3 p-3 text-[#20283a] hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User className="h-5 w-5" />
-                  <span>{user?.name}</span>
-                </Link>
+                <>
+                  <Link
+                    to="/account"
+                    className="flex items-center space-x-3 p-3 text-[#20283a] hover:bg-gray-50 rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" />
+                    <span>{user?.name}</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center space-x-3 p-3 text-[#f15a59] hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span>Logout</span>
+                  </button>
+                </>
               ) : (
                 <Link
                   to="/login"

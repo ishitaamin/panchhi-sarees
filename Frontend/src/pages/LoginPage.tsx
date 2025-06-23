@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import axios from 'axios';
 
 const LoginPage = () => {
@@ -13,6 +14,7 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth(); // <- key addition
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +27,13 @@ const LoginPage = () => {
       });
 
       if (data.token) {
-        // Store token for protected routes
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data));
+
+        login({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+        });
 
         toast({
           title: 'Welcome back!',
