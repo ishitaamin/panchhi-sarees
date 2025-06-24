@@ -19,19 +19,17 @@ export interface Address {
 interface AddressFormProps {
   onAddressSelect?: (address: Address) => void;
   showSelection?: boolean;
+  allowEditing?: boolean;
 }
 
-const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelection = false }) => {
+const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelection = false, allowEditing = false }) => {
   const [addresses, setAddresses] = useState<Address[]>(() => {
     const saved = localStorage.getItem('userAddresses');
     return saved ? JSON.parse(saved) : [];
   });
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(() => {
-    const defaultAddress = addresses.find(addr => addr.isDefault);
-    return defaultAddress?.id || '';
-  });
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -61,9 +59,11 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
       );
     } else {
       updatedAddresses = [...addresses, newAddress];
-      // Auto-select the newly added address
-      setSelectedAddressId(newAddress.id);
-      onAddressSelect?.(newAddress);
+      // Auto-select the newly added address if in selection mode
+      if (showSelection) {
+        setSelectedAddressId(newAddress.id);
+        onAddressSelect?.(newAddress);
+      }
     }
 
     // If this is set as default, remove default from others
@@ -114,6 +114,12 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
     setAddresses(updatedAddresses);
     localStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
 
+    // If deleted address was selected, clear selection
+    if (selectedAddressId === addressId) {
+      setSelectedAddressId('');
+      onAddressSelect?.(null);
+    }
+
     toast({
       title: "Address deleted",
       description: "Address has been removed successfully.",
@@ -145,7 +151,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
 
       {/* Address List */}
       <div className="space-y-3">
-        {showSelection && addresses.length > 1 ? (
+        {showSelection && addresses.length > 0 ? (
           <RadioGroup value={selectedAddressId} onValueChange={handleAddressSelect}>
             {addresses.map((address) => (
               <div
@@ -154,18 +160,46 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
                     ? 'border-[#f15a59] bg-[#f15a59]/5'
                     : 'border-gray-200'
                   }`}
-                onClick={() => handleAddressSelect(address.id)}  // <-- Select on card click
+                onClick={() => handleAddressSelect(address.id)}
               >
                 <div className="flex items-start space-x-3">
                   <RadioGroupItem value={address.id} className="mt-1" />
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <MapPin className="h-4 w-4 text-[#f15a59]" />
-                      <span className="font-semibold">{address.name}</span>
-                      {address.isDefault && (
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                          Default
-                        </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-[#f15a59]" />
+                        <span className="font-semibold">{address.name}</span>
+                        {address.isDefault && (
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      {allowEditing && (
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(address);
+                            }}
+                            className="p-1 h-8 w-8"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(address.id);
+                            }}
+                            className="p-1 h-8 w-8 text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                     <p className="text-gray-600 text-sm">
@@ -213,25 +247,23 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
                   <p className="text-gray-600 text-sm">Phone: {address.phone}</p>
                 </div>
 
-                {!showSelection && (
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(address)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(address.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(address)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(address.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))

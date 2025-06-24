@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Truck, Shield, RotateCcw } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { Button } from '@/components/ui/button';
@@ -24,12 +25,18 @@ type Product = {
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [viewerImage, setViewerImage] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  // Scroll to top when component mounts or id changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -46,7 +53,7 @@ const ProductPage: React.FC = () => {
           const sameCategoryProducts = res.data
             .filter((p: Product) => p._id !== product._id && p.category === product.category)
             .sort((a: Product, b: Product) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
-            .slice(0, 4); // Only take latest 4
+            .slice(0, 4);
           setRelated(sameCategoryProducts);
         })
         .catch(err => console.error('Failed to fetch related products:', err));
@@ -69,6 +76,21 @@ const ProductPage: React.FC = () => {
       image: product.image || '',
       size: selectedSize || '',
     }, quantity);
+  };
+
+  const handleBuyNow = () => {
+    const buyNowProduct = {
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image || '',
+      size: selectedSize || '',
+      quantity: quantity
+    };
+    
+    navigate('/checkout', { 
+      state: { buyNowProduct } 
+    });
   };
 
   const images = [product.image || ''];
@@ -117,7 +139,7 @@ const ProductPage: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-5 w-5 ${i < Math.floor(product.rating)
+                      className={`h-5 w-5 ${i < Math.floor(product.rating || 0)
                         ? 'text-yellow-400 fill-current'
                         : 'text-gray-300'
                         }`}
@@ -168,7 +190,7 @@ const ProductPage: React.FC = () => {
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Add to Cart
                 </Button>
-                <Button className="flex-1 bg-[#20283a] hover:bg-[#20283a]/90 text-white">
+                <Button onClick={handleBuyNow} className="flex-1 bg-[#20283a] hover:bg-[#20283a]/90 text-white">
                   Buy Now
                 </Button>
                 <Button variant="outline" size="icon">

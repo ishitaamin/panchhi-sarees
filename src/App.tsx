@@ -1,73 +1,66 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { CartProvider } from "./contexts/CartContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import { AdminAuthProvider } from "./contexts/AdminAuthContext";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import Chatbot from "./components/Chatbot";
-import Home from "./pages/Home";
-import CategoryPage from "./pages/CategoryPage";
-import ProductPage from "./pages/ProductPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import AccountPage from "./pages/AccountPage";
-import SearchPage from "./pages/SearchPage";
-import AdminPanel from "./pages/AdminPanel";
-import NotFound from "./pages/NotFound";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { AdminAuthProvider } from './contexts/AdminAuthContext';
+import { Toaster } from '@/components/ui/toaster';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
+import Home from './pages/Home';
+import ProductPage from './pages/ProductPage';
+import CategoryPage from './pages/CategoryPage';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AccountPage from './pages/AccountPage';
+import SearchPage from './pages/SearchPage';
+import AdminPanel from './pages/AdminPanel';
+import NotFound from './pages/NotFound';
 
-const queryClient = new QueryClient();
-
-const AppContent = () => {
-  const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
-
+const App = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      {!isAdminRoute && <Navbar />}
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category/:category" element={<CategoryPage />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-      {!isAdminRoute && <Footer />}
-      {!isAdminRoute && <Chatbot />}
-    </div>
+    <AuthProvider>
+      <AdminAuthProvider>
+        <CartProvider>
+          <Router>
+            <ScrollToTop />
+            <div className="min-h-screen bg-gray-50">
+              <Routes>
+                {/* Admin route without navbar/footer */}
+                <Route path="/admin" element={<AdminPanel />} />
+                
+                {/* Regular routes with navbar/footer */}
+                <Route path="/*" element={
+                  <>
+                    <Navbar />
+                    <main className="flex-1">
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/product/:id" element={<ProductPage />} />
+                        <Route path="/category/:category" element={<CategoryPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/account" element={<AccountPage />} />
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </>
+                } />
+              </Routes>
+            </div>
+            <Toaster />
+          </Router>
+        </CartProvider>
+      </AdminAuthProvider>
+    </AuthProvider>
   );
 };
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CartProvider>
-        <AuthProvider>
-          <AdminAuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          </AdminAuthProvider>
-        </AuthProvider>
-      </CartProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
 
 export default App;

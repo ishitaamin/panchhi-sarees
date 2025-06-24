@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,11 @@ const CheckoutPage = () => {
   const { items, getTotalPrice, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const location = useLocation();
+  
+  // Get buy now product from location state
+  const buyNowProduct = location.state?.buyNowProduct;
+  const checkoutItems = buyNowProduct ? [buyNowProduct] : items;
 
   if (!isAuthenticated) {
     return (
@@ -27,7 +32,7 @@ const CheckoutPage = () => {
     );
   }
 
-  if (items.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -42,11 +47,17 @@ const CheckoutPage = () => {
     );
   }
 
-  const totalAmount = getTotalPrice() + Math.round(getTotalPrice() * 0.18);
+  const getItemsTotal = () => {
+    return checkoutItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const totalAmount = getItemsTotal() + Math.round(getItemsTotal() * 0.18);
 
   const handlePaymentSuccess = (paymentData: any) => {
     console.log('Payment successful:', paymentData);
-    clearCart();
+    if (!buyNowProduct) {
+      clearCart();
+    }
     // Here you would typically save the order to your backend
   };
 
@@ -64,14 +75,14 @@ const CheckoutPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Address */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <AddressForm onAddressSelect={setSelectedAddress} showSelection={true} />
+              <AddressForm onAddressSelect={setSelectedAddress} showSelection={true} allowEditing={true} />
             </div>
 
             {/* Order Items */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-semibold text-[#20283a] mb-4">Order Items</h2>
               <div className="space-y-4">
-                {items.map((item) => (
+                {checkoutItems.map((item) => (
                   <div key={`${item.id}-${item.size}-${item.color}`} className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-b-0">
                     <img
                       src={item.image}
@@ -103,7 +114,7 @@ const CheckoutPage = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>₹{getTotalPrice().toLocaleString()}</span>
+                  <span>₹{getItemsTotal().toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -111,7 +122,7 @@ const CheckoutPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span>₹{Math.round(getTotalPrice() * 0.18).toLocaleString()}</span>
+                  <span>₹{Math.round(getItemsTotal() * 0.18).toLocaleString()}</span>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-bold text-lg">
@@ -125,8 +136,8 @@ const CheckoutPage = () => {
                 <RazorpayPayment
                   amount={totalAmount}
                   orderDetails={{
-                    productName: items.length === 1 ? items[0].name : `${items.length} items`,
-                    quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+                    productName: checkoutItems.length === 1 ? checkoutItems[0].name : `${checkoutItems.length} items`,
+                    quantity: checkoutItems.reduce((sum, item) => sum + item.quantity, 0),
                     customerName: user.name,
                     customerEmail: user.email,
                     customerPhone: user.phone || selectedAddress.phone,
@@ -140,9 +151,9 @@ const CheckoutPage = () => {
                 </div>
               )}
               
-              <Link to="/cart" className="block w-full mt-3">
+              <Link to={buyNowProduct ? `/product/${buyNowProduct.id}` : "/cart"} className="block w-full mt-3">
                 <Button variant="outline" className="w-full">
-                  Back to Cart
+                  {buyNowProduct ? 'Back to Product' : 'Back to Cart'}
                 </Button>
               </Link>
             </div>
