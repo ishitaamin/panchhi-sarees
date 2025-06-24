@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, MapPin, ShoppingBag, Heart, Settings, LogOut } from 'lucide-react';
+import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import AddressForm from '@/components/AddressForm';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { wishlistItems, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState('profile');
 
   if (!isAuthenticated) {
@@ -147,15 +150,39 @@ const AccountPage = () => {
               {activeTab === 'wishlist' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">My Wishlist</h2>
-                  <div className="text-center py-12">
-                    <Heart className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">Your wishlist is empty</p>
-                    <Link to="/">
-                      <Button className="mt-4 bg-[#f15a59] hover:bg-[#d63031] text-white">
-                        Browse Products
-                      </Button>
-                    </Link>
-                  </div>
+                  {wishlistItems.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Heart className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-600">Your wishlist is empty</p>
+                      <Link to="/">
+                        <Button className="mt-4 bg-[#f15a59] hover:bg-[#d63031] text-white">
+                          Browse Products
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {wishlistItems.map((item) => (
+                        <div key={item._id} className="border rounded-lg p-4 relative">
+                          <button
+                            onClick={() => removeFromWishlist(item._id)}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                          <Link to={`/product/${item._id}`}>
+                            <img
+                              src={item.image || 'https://via.placeholder.com/200'}
+                              alt={item.name}
+                              className="w-full h-40 object-cover rounded mb-2"
+                            />
+                            <h3 className="font-medium text-[#20283a] mb-1 line-clamp-2">{item.name}</h3>
+                            <p className="text-[#f15a59] font-semibold">₹{item.price.toLocaleString()}</p>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               

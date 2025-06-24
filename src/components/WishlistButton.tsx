@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Heart } from 'lucide-react';
+
+import React from 'react';
+import { Heart, X } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -9,9 +10,11 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
+import { useWishlist } from '../contexts/WishlistContext';
+import { Button } from '@/components/ui/button';
 
 const WishlistButton = () => {
-  const [wishlistItems] = useState([]); // Replace with context state when integrated
+  const { wishlistItems, removeFromWishlist } = useWishlist();
 
   return (
     <Sheet>
@@ -43,7 +46,29 @@ const WishlistButton = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Wishlist items would be displayed here */}
+              {wishlistItems.map((item) => (
+                <div key={item._id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <img
+                    src={item.image || 'https://via.placeholder.com/60'}
+                    alt={item.name}
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <Link to={`/product/${item._id}`} className="font-medium text-[#20283a] hover:text-[#f15a59] line-clamp-1">
+                      {item.name}
+                    </Link>
+                    <p className="text-sm text-gray-600">₹{item.price.toLocaleString()}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFromWishlist(item._id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           )}
         </div>

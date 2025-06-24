@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Heart } from 'lucide-react';
+import { useWishlist } from '../contexts/WishlistContext';
 
 interface Product {
   _id: string;
@@ -19,6 +21,24 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const rating = product.rating || 0;
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isInWishlist(product._id)) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist({
+        _id: product._id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        category: product.category
+      });
+    }
+  };
 
   return (
     <div className="group relative bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 hover:border-[#f15a59]/20">
@@ -29,8 +49,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             alt={product.name}
             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#f15a59] hover:text-white">
-            <Heart className="h-4 w-4" />
+          <button 
+            onClick={handleWishlistToggle}
+            className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity ${
+              isInWishlist(product._id) 
+                ? 'bg-[#f15a59] text-white' 
+                : 'hover:bg-[#f15a59] hover:text-white'
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${isInWishlist(product._id) ? 'fill-current' : ''}`} />
           </button>
         </div>
 

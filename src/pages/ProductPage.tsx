@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Truck, Shield, RotateCcw } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import ProductCard from '../components/ProductCard';
 import ImageViewer from '../components/ImageViewer';
@@ -25,6 +25,7 @@ type Product = {
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
@@ -91,6 +92,20 @@ const ProductPage: React.FC = () => {
     navigate('/checkout', { 
       state: { buyNowProduct } 
     });
+  };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist(product._id)) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist({
+        _id: product._id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        category: product.category
+      });
+    }
   };
 
   const images = [product.image || ''];
@@ -193,8 +208,13 @@ const ProductPage: React.FC = () => {
                 <Button onClick={handleBuyNow} className="flex-1 bg-[#20283a] hover:bg-[#20283a]/90 text-white">
                   Buy Now
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="h-5 w-5" />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleWishlistToggle}
+                  className={isInWishlist(product._id) ? 'bg-[#f15a59] text-white border-[#f15a59]' : ''}
+                >
+                  <Heart className={`h-5 w-5 ${isInWishlist(product._id) ? 'fill-current' : ''}`} />
                 </Button>
               </div>
 

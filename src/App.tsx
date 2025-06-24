@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
 import { Toaster } from '@/components/ui/toaster';
@@ -24,40 +25,42 @@ const App = () => {
   return (
     <AuthProvider>
       <AdminAuthProvider>
-        <CartProvider>
-          <Router>
-            <ScrollToTop />
-            <div className="min-h-screen bg-gray-50">
-              <Routes>
-                {/* Admin route without navbar/footer */}
-                <Route path="/admin" element={<AdminPanel />} />
-                
-                {/* Regular routes with navbar/footer */}
-                <Route path="/*" element={
-                  <>
-                    <Navbar />
-                    <main className="flex-1">
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/product/:id" element={<ProductPage />} />
-                        <Route path="/category/:category" element={<CategoryPage />} />
-                        <Route path="/cart" element={<CartPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
-                        <Route path="/account" element={<AccountPage />} />
-                        <Route path="/search" element={<SearchPage />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                    <Footer />
-                  </>
-                } />
-              </Routes>
-            </div>
-            <Toaster />
-          </Router>
-        </CartProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <Router>
+              <ScrollToTop />
+              <div className="min-h-screen bg-gray-50">
+                <Routes>
+                  {/* Admin route without navbar/footer */}
+                  <Route path="/admin" element={<AdminPanel />} />
+                  
+                  {/* Regular routes with navbar/footer */}
+                  <Route path="/*" element={
+                    <>
+                      <Navbar />
+                      <main className="flex-1">
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/product/:id" element={<ProductPage />} />
+                          <Route path="/category/:category" element={<CategoryPage />} />
+                          <Route path="/cart" element={<CartPage />} />
+                          <Route path="/checkout" element={<CheckoutPage />} />
+                          <Route path="/login" element={<LoginPage />} />
+                          <Route path="/register" element={<RegisterPage />} />
+                          <Route path="/account" element={<AccountPage />} />
+                          <Route path="/search" element={<SearchPage />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+                    </>
+                  } />
+                </Routes>
+              </div>
+              <Toaster />
+            </Router>
+          </CartProvider>
+        </WishlistProvider>
       </AdminAuthProvider>
     </AuthProvider>
   );
