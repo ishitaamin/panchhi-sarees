@@ -8,7 +8,11 @@ const productSchema = new mongoose.Schema({
   category: { type: String },
   quantity: { type: Number, required: true },
   fabric: { type: String },
-  rating: { type: Number, default: 0 },
+  rating: { type: Number, default: 4 },
+  size: [{
+    type: String,
+    enum: ['Free Size', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+  }]
 }, { timestamps: true });
 
 export default mongoose.model("Product", productSchema);

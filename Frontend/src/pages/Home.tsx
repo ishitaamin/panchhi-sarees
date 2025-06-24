@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Gift, Truck, Shield, HeadphonesIcon, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
@@ -9,11 +9,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import productsData from '../data/products.json';
 import { Typewriter } from 'react-simple-typewriter';
+import axios from "axios";
 
 const Home = () => {
-  const trendingProducts = productsData.slice(0, 4);
+  const [trendingProducts, setTrendingProducts] = useState([]);
+  const nextRef = useRef<HTMLButtonElement>(null);
   const offers = [
     {
       id: 1,
@@ -73,13 +74,21 @@ const Home = () => {
     }
   ];
 
-  const nextRef = useRef<HTMLButtonElement>(null);
-
   useEffect(() => {
     const interval = setInterval(() => {
       nextRef.current?.click();
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/products") // Replace with your live URL if needed
+      .then(res => {
+        const latest = res.data.slice(0, 8); // latest 8
+        setTrendingProducts(latest);
+      })
+      .catch(err => console.error("Failed to fetch trending products:", err));
   }, []);
 
   return (
@@ -141,8 +150,11 @@ const Home = () => {
                   <Link to="/category/anniversary" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Anniversary</Link>
                   <Link to="/category/birthday" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Birthday</Link>
                   <Link to="/category/kitty-party" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Kitty-Party</Link>
+                  <Link to="/category/get-together" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Get Together</Link>
+                  <Link to="/category/cocktail" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Cocktail</Link>
                   <Link to="/category/festive" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Festive</Link>
                   <Link to="/category/evening" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Evening</Link>
+                  <Link to="/category/casual" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Casual</Link>
                   <Link to="/category/business" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Business</Link>
                 </div>
               </div>
@@ -156,11 +168,9 @@ const Home = () => {
               </div>
               <div className="absolute top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
                 <div className="grid gap-1 p-4">
-                  <Link to="/category/kids" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Kids (2–12)</Link>
-                  <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Teens (13–19)</Link>
-                  <Link to="/category/young-adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Young Adults (20–35)</Link>
-                  <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Adults (36–50)</Link>
-                  <Link to="/category/senior" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Seniors (50+)</Link>
+                  <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Teens (12–18)</Link>
+                  <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Adults (18–40)</Link>
+                  <Link to="/category/senior" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Seniors (40+)</Link>
                 </div>
               </div>
             </div>
@@ -179,6 +189,9 @@ const Home = () => {
                   <Link to="/category/georgette" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Georgette</Link>
                   <Link to="/category/net" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Net</Link>
                   <Link to="/category/velvet" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Velvet</Link>
+                  <Link to="/category/muslin" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Muslin</Link>
+                  <Link to="/category/linen" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Linen</Link>
+                  <Link to="/category/rayon" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Rayon</Link>
                 </div>
               </div>
             </div>
@@ -198,7 +211,7 @@ const Home = () => {
                   <Link to="/category/indo-western" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Indo-Western</Link>
                   <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Lehengas</Link>
                   <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Bridal Wear</Link>
-                  <Link to="/category/blouse" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Readymade Blouse</Link>
+                  <Link to="/category/blouse" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Readymade Stitched Blouse</Link>
                 </div>
               </div>
             </div>
@@ -276,7 +289,7 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </div>

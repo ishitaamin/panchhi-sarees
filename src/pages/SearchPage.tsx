@@ -1,26 +1,35 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import productsData from '../data/products.json';
+import axios from 'axios'; // ✅ Add axios for fetching
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [searchTerm, setSearchTerm] = useState(query);
+  const [allProducts, setAllProducts] = useState([]);
 
+  // ✅ Fetch all products once when page loads
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/api/products') // Replace with your actual API
+      .then(res => setAllProducts(res.data))
+      .catch(err => console.error('Failed to fetch products:', err));
+  }, []);
+
+  // ✅ Filter based on searchTerm
   const searchResults = useMemo(() => {
     if (!searchTerm) return [];
-    
+
     const lowercaseQuery = searchTerm.toLowerCase();
-    return productsData.filter(product =>
+    return allProducts.filter(product =>
       product.name.toLowerCase().includes(lowercaseQuery) ||
-      product.category.toLowerCase().includes(lowercaseQuery) ||
-      product.fabric.toLowerCase().includes(lowercaseQuery) ||
+      product.category?.toLowerCase().includes(lowercaseQuery) ||
+      product.fabric?.toLowerCase().includes(lowercaseQuery) ||
       product.description?.toLowerCase().includes(lowercaseQuery)
     );
-  }, [searchTerm]);
+  }, [searchTerm, allProducts]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,7 +64,7 @@ const SearchPage = () => {
               {searchResults.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {searchResults.map(product => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
               ) : (

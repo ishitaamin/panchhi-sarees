@@ -1,136 +1,137 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Truck, Shield, RotateCcw } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import ProductCard from '../components/ProductCard';
 import ImageViewer from '../components/ImageViewer';
-import productsData from '../data/products.json';
+import axios from 'axios';
 
-const ProductPage = () => {
-  const { id } = useParams();
+type Product = {
+  _id: string;
+  name: string;
+  image?: string;
+  description?: string;
+  price: number;
+  category?: string;
+  quantity: number;
+  fabric?: string;
+  rating?: number;
+  createdAt?: string;
+  size?: string[];
+};
+
+const ProductPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [viewerImage, setViewerImage] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
-  const product = productsData.find(p => p.id === parseInt(id || '0'));
-  
+  useEffect(() => {
+    if (!id) return;
+    axios.get(`http://localhost:5000/api/products/${id}`)
+      .then(res => setProduct(res.data))
+      .catch(err => console.error('Failed to fetch product:', err));
+  }, [id]);
+
+  useEffect(() => {
+    if (product?.category) {
+      axios
+        .get(`http://localhost:5000/api/products?category=${product.category}`)
+        .then(res => {
+          const sameCategoryProducts = res.data
+            .filter((p: Product) => p._id !== product._id && p.category === product.category)
+            .sort((a: Product, b: Product) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
+            .slice(0, 4); // Only take latest 4
+          setRelated(sameCategoryProducts);
+        })
+        .catch(err => console.error('Failed to fetch related products:', err));
+    }
+  }, [product]);
+
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h1>
-          <Link to="/" className="text-[#f15a59] hover:text-[#d63031]">
-            Return to Home
-          </Link>
-        </div>
+        <p className="text-lg">Loading product details…</p>
       </div>
     );
   }
 
-  const relatedProducts = productsData
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   const handleAddToCart = () => {
     addToCart({
-      id: product.id,
+      id: product._id,
       name: product.name,
       price: product.price,
-      image: product.images[0],
-      size: selectedSize,
-      color: selectedColor
+      image: product.image || '',
+      size: selectedSize || '',
     }, quantity);
   };
 
+  const images = [product.image || ''];
+
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
-          <nav className="mb-8">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li><Link to="/" className="text-[#f15a59] hover:text-[#d63031]">Home</Link></li>
-              <li className="text-gray-500">/</li>
-              <li><Link to={`/category/${product.category}`} className="text-[#f15a59] hover:text-[#d63031]">{product.category.toLocaleUpperCase()}</Link></li>
-              <li className="text-gray-500">/</li>
-              <li className="text-gray-700">{product.name}</li>
-            </ol>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="mb-8 text-sm">
+            <Link to="/" className="text-[#f15a59] hover:text-[#d63031]">Home</Link> /{' '}
+            <Link to={`/category/${product.category}`} className="text-[#f15a59] hover:text-[#d63031]">
+              {(product.category || '').toUpperCase()}
+            </Link> /{' '}
+            <span className="text-gray-700">{product.name}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-            {/* Product Images */}
             <div>
               <div className="mb-4">
                 <img
-                  src={product.images[selectedImage]}
+                  src={selectedImage || product.image || ''}
                   alt={product.name}
-                  className="w-full h-96 md:h-[500px] object-cover rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity"
-                  onClick={() => setViewerImage(product.images[selectedImage])}
+                  className="w-full h-96 md:h-[500px] object-cover rounded-lg cursor-zoom-in"
+                  onClick={() => setViewerImage(selectedImage || product.image || '')}
                 />
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image, index) => (
+                {images.map((img, idx) => (
                   <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`border-2 rounded-lg overflow-hidden group ${
-                      selectedImage === index ? 'border-[#f15a59]' : 'border-gray-200'
-                    }`}
+                    key={idx}
+                    onClick={() => setSelectedImage(img)}
+                    className={`border-2 rounded-lg overflow-hidden ${(selectedImage || product.image) === img ? 'border-[#f15a59]' : 'border-gray-200'
+                      }`}
                   >
-                    <img 
-                      src={image} 
-                      alt="" 
-                      className="w-full h-20 object-cover cursor-pointer hover:opacity-80 transition-opacity" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setViewerImage(image);
-                      }}
-                    />
+                    <img src={img} alt="" className="w-full h-20 object-cover" />
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Product Details */}
             <div>
               <h1 className="text-3xl font-bold text-[#20283a] mb-4">{product.name}</h1>
-              
+
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-5 w-5 ${
-                        i < Math.floor(product.rating)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                      }`}
+                      className={`h-5 w-5 ${i < Math.floor(product.rating)
+                        ? 'text-yellow-400 fill-current'
+                        : 'text-gray-300'
+                        }`}
                     />
                   ))}
                 </div>
-                <span className="ml-2 text-gray-600">
-                  {product.rating} ({product.reviews} reviews)
-                </span>
+                <span className="ml-2 text-gray-600">{(product.rating || 0).toFixed(1)} (89 reviews)</span>
               </div>
 
-              <div className="flex items-center space-x-4 mb-6">
-                <span className="text-3xl font-bold text-[#20283a]">
-                  ₹{product.price.toLocaleString()}
-                </span>
-                {product.originalPrice && (
-                  <span className="text-xl text-gray-500 line-through">
-                    ₹{product.originalPrice.toLocaleString()}
-                  </span>
-                )}
+              <div className="text-3xl font-bold text-[#20283a] mb-6">
+                ₹{product.price.toLocaleString()}
               </div>
 
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                {product.description}
-              </p>
+              <p className="text-gray-600 mb-6">{product.description}</p>
 
               {/* Size Selection */}
               {product.size && product.size.length > 0 && (
@@ -141,11 +142,10 @@ const ProductPage = () => {
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 border rounded-lg transition-colors ${
-                          selectedSize === size
-                            ? 'bg-[#f15a59] text-white border-[#f15a59]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#f15a59]'
-                        }`}
+                        className={`px-4 py-2 border rounded-lg transition-colors ${selectedSize === size
+                          ? 'bg-[#f15a59] text-white border-[#f15a59]'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-[#f15a59]'
+                          }`}
                       >
                         {size}
                       </button>
@@ -154,32 +154,17 @@ const ProductPage = () => {
                 </div>
               )}
 
-              {/* Quantity */}
               <div className="mb-6">
                 <h3 className="font-semibold text-[#20283a] mb-3">Quantity</h3>
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    -
-                  </button>
+                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1 border rounded-lg">-</button>
                   <span className="font-semibold text-lg">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    +
-                  </button>
+                  <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1 border rounded-lg">+</button>
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex space-x-4 mb-8">
-                <Button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-[#f15a59] hover:bg-[#d63031] text-white"
-                >
+                <Button onClick={handleAddToCart} className="flex-1 bg-[#f15a59] hover:bg-[#d63031] text-white">
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Add to Cart
                 </Button>
@@ -191,31 +176,20 @@ const ProductPage = () => {
                 </Button>
               </div>
 
-              {/* Features */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <Truck className="h-5 w-5 text-[#f15a59]" />
-                  <span>Free Shipping</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-[#f15a59]" />
-                  <span>Secure Payment</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RotateCcw className="h-5 w-5 text-[#f15a59]" />
-                  <span>Easy Returns</span>
-                </div>
+                <div className="flex items-center space-x-2"><Truck className="h-5 w-5 text-[#f15a59]" /><span>Free Shipping</span></div>
+                <div className="flex items-center space-x-2"><Shield className="h-5 w-5 text-[#f15a59]" /><span>Secure Payment</span></div>
+                <div className="flex items-center space-x-2"><RotateCcw className="h-5 w-5 text-[#f15a59]" /><span>Easy Returns</span></div>
               </div>
             </div>
           </div>
 
-          {/* Related Products */}
-          {relatedProducts.length > 0 && (
+          {related.length > 0 && (
             <section>
               <h2 className="text-2xl font-bold text-[#20283a] mb-8">Related Products</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {relatedProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                {related.map(prod => (
+                  <ProductCard key={prod._id} product={prod} />
                 ))}
               </div>
             </section>

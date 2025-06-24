@@ -1,11 +1,11 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, LogOut, ExternalLink, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import AdminLogin from '@/components/AdminLogin';
 import ImageUpload from '@/components/ImageUpload';
+import axios from 'axios';
 
 const AdminPanel = () => {
   const { admin, isAdminAuthenticated, logoutAdmin } = useAdminAuth();
@@ -13,12 +13,14 @@ const AdminPanel = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const { toast } = useToast();
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const mockProducts = [
-    { id: 1, name: 'Banarasi Silk Saree', category: 'Sarees', price: 15999, stock: 25, images: [] },
-    { id: 2, name: 'Cotton Kurti Set', category: 'Kurtis', price: 3999, stock: 40, images: [] },
-    { id: 3, name: 'Designer Lehenga', category: 'Lehengas', price: 25999, stock: 15, images: [] },
-  ];
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/products')
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -27,41 +29,110 @@ const AdminPanel = () => {
     stock: '',
     description: '',
     fabric: '',
-    images: []
+    images: [] as File[],
+    size: [] as string[],
   });
 
-  const handleAddProduct = () => {
-    toast({
-      title: "Product Added",
-      description: "New product has been added successfully.",
-    });
-    setShowAddProduct(false);
-    setEditingProduct(null);
-    setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [] });
+  const handleAddProduct = async () => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", newProduct.name);
+      formData.append("price", newProduct.price);
+      formData.append("description", newProduct.description);
+      formData.append("quantity", newProduct.stock);
+      formData.append("category", newProduct.category);
+      formData.append("fabric", newProduct.fabric);
+
+      // ✅ Append sizes as "size" (not sizes[])
+      newProduct.size.forEach((s) => {
+        formData.append("size", s);
+      });
+
+      if (newProduct.images[0]) {
+        formData.append("image", newProduct.images[0]);
+      }
+
+      const token = localStorage.getItem("token");
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      if (editingProduct) {
+        await axios.put(`http://localhost:5000/api/products/${editingProduct._id}`, formData, config);
+        toast({ title: "Product Updated" });
+      } else {
+        await axios.post("http://localhost:5000/api/products", formData, config);
+        toast({ title: "Product Added" });
+      }
+
+      setShowAddProduct(false);
+      setEditingProduct(null);
+      setNewProduct({
+        name: '',
+        category: '',
+        price: '',
+        stock: '',
+        description: '',
+        fabric: '',
+        images: [],
+        size: [], // ✅ reset using "size"
+      });
+
+      const updated = await axios.get('http://localhost:5000/api/products');
+      setProducts(updated.data);
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error", description: "Something went wrong" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditProduct = (product: any) => {
     setEditingProduct(product);
     setNewProduct({
-      name: product.name,
-      category: product.category,
-      price: product.price.toString(),
-      stock: product.stock.toString(),
+      name: product.name || '',
+      category: product.category || '',
+      price: product.price?.toString() || '',
+      stock: (product.stock || product.quantity)?.toString() || '',
       description: product.description || '',
       fabric: product.fabric || '',
-      images: product.images || []
+      size: product.size || [],
+      images: [], // images will be handled by ImageUpload component
     });
     setShowAddProduct(true);
   };
 
-  const handleDeleteProduct = (id: number) => {
-    toast({
-      title: "Product Deleted",
-      description: "Product has been removed from inventory.",
-    });
+  const handleDeleteProduct = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+      toast({ title: "Product Deleted" });
+
+      const updated = await axios.get('http://localhost:5000/api/products');
+      setProducts(updated.data);
+    } catch (err) {
+      console.error(err); // helpful for debugging
+      toast({ title: "Error", description: "Failed to delete product" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleImageSelect = (images: string[]) => {
+  const handleImageSelect = (images: File[]) => {
     setNewProduct({ ...newProduct, images });
   };
 
@@ -106,15 +177,14 @@ const AdminPanel = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
-              {['products', 'orders', 'customers'].map((tab) => (
+              {['products', 'orders'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
-                    activeTab === tab
-                      ? 'border-[#f15a59] text-[#f15a59]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
+                    ? 'border-[#f15a59] text-[#f15a59]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab}
                 </button>
@@ -147,6 +217,140 @@ const AdminPanel = () => {
               </div>
             </div>
 
+            {/* Add/Edit Product Form */}
+            {showAddProduct && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-[#20283a] mb-4">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                      <input
+                        type="text"
+                        value={newProduct.name}
+                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter product name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                      <select
+                        value={newProduct.category}
+                        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                      >
+                        <option value="">Select Category</option>
+                        <option value="Sarees">Sarees</option>
+                        <option value="Kurtis">Kurtis</option>
+                        <option value="Lehengas">Lehengas</option>
+                        <option value="Bridal Wear">Bridal Wear</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                      <input
+                        type="number"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter price"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                      <input
+                        type="number"
+                        value={newProduct.stock}
+                        onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        placeholder="Enter stock quantity"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
+                    <div className="flex flex-wrap gap-3">
+                      {['Free Size', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((size) => {
+                        const selected = newProduct.size.includes(size);
+                        return (
+                          <div
+                            key={size}
+                            onClick={() => {
+                              const updatedSizes = selected
+                                ? newProduct.size.filter(s => s !== size)
+                                : [...newProduct.size, size];
+                              setNewProduct({ ...newProduct, size: updatedSizes });
+                            }}
+                            className={`cursor-pointer select-none rounded-md border px-3 py-1 text-sm font-medium
+            ${selected ? 'bg-[#f15a59] text-white border-[#f15a59]' : 'bg-white text-gray-700 border-gray-300'}
+            hover:bg-[#f15a59] hover:text-white hover:border-[#f15a59] transition-colors duration-200`}
+                          >
+                            {size}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea
+                      value={newProduct.description}
+                      onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                      placeholder="Enter product description"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Fabric</label>
+                    <input
+                      type="text"
+                      value={newProduct.fabric}
+                      onChange={(e) => setNewProduct({ ...newProduct, fabric: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                      placeholder="Enter fabric type"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                    <ImageUpload
+                      onImageSelect={handleImageSelect}
+                      existingImages={editingProduct ? [] : undefined} // or [] to skip previews
+                    />
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 mt-6">
+                  <Button onClick={handleAddProduct} className="bg-[#f15a59] hover:bg-[#d63031] text-white">
+                    <Save className="h-4 w-4 mr-2" />
+                    {editingProduct ? 'Update Product' : 'Save Product'}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowAddProduct(false);
+                      setEditingProduct(null);
+                      setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [], size: [] });
+                    }}
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                  {isLoading && (
+                    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">
+                      <div className="w-12 h-12 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Recently Added Products Quick Links */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h3 className="text-lg font-semibold text-[#20283a] mb-3">Quick Links - View Products by Category</h3>
@@ -166,107 +370,6 @@ const AdminPanel = () => {
               </div>
             </div>
 
-            {/* Add/Edit Product Form */}
-            {showAddProduct && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-[#20283a] mb-4">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                      <input
-                        type="text"
-                        value={newProduct.name}
-                        onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                        placeholder="Enter product name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                      <select
-                        value={newProduct.category}
-                        onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      >
-                        <option value="">Select Category</option>
-                        <option value="Sarees">Sarees</option>
-                        <option value="Kurtis">Kurtis</option>
-                        <option value="Lehengas">Lehengas</option>
-                        <option value="Bridal Wear">Bridal Wear</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                      <input
-                        type="number"
-                        value={newProduct.price}
-                        onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                        placeholder="Enter price"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
-                      <input
-                        type="number"
-                        value={newProduct.stock}
-                        onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                        placeholder="Enter stock quantity"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea
-                      value={newProduct.description}
-                      onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      placeholder="Enter product description"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Fabric</label>
-                    <input
-                      type="text"
-                      value={newProduct.fabric}
-                      onChange={(e) => setNewProduct({...newProduct, fabric: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
-                      placeholder="Enter fabric type"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
-                    <ImageUpload onImageSelect={handleImageSelect} existingImages={newProduct.images} />
-                  </div>
-                </div>
-                
-                <div className="flex space-x-3 mt-6">
-                  <Button onClick={handleAddProduct} className="bg-[#f15a59] hover:bg-[#d63031] text-white">
-                    <Save className="h-4 w-4 mr-2" />
-                    {editingProduct ? 'Update Product' : 'Save Product'}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setShowAddProduct(false);
-                      setEditingProduct(null);
-                      setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [] });
-                    }}
-                    variant="outline"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
-
             {/* Products List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -284,8 +387,8 @@ const AdminPanel = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {mockProducts.map((product) => (
-                      <tr key={product.id}>
+                    {products.map((product) => (
+                      <tr key={product._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{product.name}</div>
                         </td>
@@ -296,7 +399,7 @@ const AdminPanel = () => {
                           <div className="text-sm text-gray-900">₹{product.price.toLocaleString()}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{product.stock}</div>
+                          <div className="text-sm text-gray-900">{product.quantity}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
@@ -312,7 +415,7 @@ const AdminPanel = () => {
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
-                              onClick={() => handleDeleteProduct(product.id)}
+                              onClick={() => handleDeleteProduct(product._id)}
                               variant="outline"
                               size="sm"
                               className="text-red-600 hover:text-red-700"
@@ -335,14 +438,6 @@ const AdminPanel = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-[#20283a] mb-4">Order Management</h3>
             <p className="text-gray-600">Order management functionality coming soon...</p>
-          </div>
-        )}
-
-        {/* Customers Tab */}
-        {activeTab === 'customers' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-[#20283a] mb-4">Customer Management</h3>
-            <p className="text-gray-600">Customer management functionality coming soon...</p>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+  token: string;
 }
 
 // Define context type
@@ -51,4 +52,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const getToken = () => {
+  const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+  return user?.token || '';
 };

@@ -1,36 +1,22 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Plus } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import AddressForm, { Address } from '@/components/AddressForm';
+import RazorpayPayment from '@/components/RazorpayPayment';
 
 const CheckoutPage = () => {
-  const { items, getTotalPrice } = useCart();
+  const { items, getTotalPrice, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
-  const [selectedAddress, setSelectedAddress] = useState(0);
-  const [showAddAddress, setShowAddAddress] = useState(false);
-
-  const mockAddresses = [
-    {
-      id: 1,
-      name: 'Home',
-      address: '123 MG Road, Bangalore, Karnataka - 560001',
-      phone: '+91 9876543210'
-    },
-    {
-      id: 2,
-      name: 'Office',
-      address: '456 Brigade Road, Bangalore, Karnataka - 560025',
-      phone: '+91 9876543210'
-    }
-  ];
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Please Login to continue</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Please login to continue</h2>
           <Link to="/login">
             <Button className="bg-[#f15a59] hover:bg-[#d63031] text-white">
               Login
@@ -56,6 +42,18 @@ const CheckoutPage = () => {
     );
   }
 
+  const totalAmount = getTotalPrice() + Math.round(getTotalPrice() * 0.18);
+
+  const handlePaymentSuccess = (paymentData: any) => {
+    console.log('Payment successful:', paymentData);
+    clearCart();
+    // Here you would typically save the order to your backend
+  };
+
+  const handlePaymentFailure = (error: any) => {
+    console.log('Payment failed:', error);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -66,48 +64,7 @@ const CheckoutPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Address */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-[#20283a]">Delivery Address</h2>
-                <Button
-                  onClick={() => setShowAddAddress(true)}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {mockAddresses.map((address, index) => (
-                  <div
-                    key={address.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                      selectedAddress === index
-                        ? 'border-[#f15a59] bg-[#f15a59]/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedAddress(index)}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <input
-                        type="radio"
-                        checked={selectedAddress === index}
-                        onChange={() => setSelectedAddress(index)}
-                        className="mt-1 accent-[#f15a59]"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <MapPin className="h-4 w-4 text-[#f15a59]" />
-                          <span className="font-semibold">{address.name}</span>
-                        </div>
-                        <p className="text-gray-600 text-sm">{address.address}</p>
-                        <p className="text-gray-600 text-sm">{address.phone}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <AddressForm onAddressSelect={setSelectedAddress} showSelection={true} />
             </div>
 
             {/* Order Items */}
@@ -159,16 +116,31 @@ const CheckoutPage = () => {
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>₹{(getTotalPrice() + Math.round(getTotalPrice() * 0.18)).toLocaleString()}</span>
+                    <span>₹{totalAmount.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
               
-              <Button className="w-full bg-[#f15a59] hover:bg-[#d63031] text-white mb-3">
-                Place Order
-              </Button>
+              {selectedAddress && user ? (
+                <RazorpayPayment
+                  amount={totalAmount}
+                  orderDetails={{
+                    productName: items.length === 1 ? items[0].name : `${items.length} items`,
+                    quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+                    customerName: user.name,
+                    customerEmail: user.email,
+                    customerPhone: user.phone || selectedAddress.phone,
+                  }}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onPaymentFailure={handlePaymentFailure}
+                />
+              ) : (
+                <div className="text-center text-gray-500 mb-3">
+                  Please select a delivery address to proceed
+                </div>
+              )}
               
-              <Link to="/cart" className="block w-full">
+              <Link to="/cart" className="block w-full mt-3">
                 <Button variant="outline" className="w-full">
                   Back to Cart
                 </Button>

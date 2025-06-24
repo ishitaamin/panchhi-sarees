@@ -47,19 +47,23 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      // Mock OTP sending - in real app, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { data } = await axios.post('http://localhost:5000/api/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+
       toast({
         title: 'OTP Sent',
-        description: 'Please check your email for the verification code.',
+        description: data.message || 'Please check your email for the verification code.',
       });
-      
+
       setStep('otp');
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: 'Failed to send OTP',
-        description: 'Please try again.',
+        title: 'Registration failed',
+        description: error?.response?.data?.message || 'Something went wrong.',
         variant: 'destructive',
       });
     } finally {
@@ -71,28 +75,28 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      // Mock OTP verification and registration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In real app, you would verify OTP and then register user
-      const userData = {
-        name: formData.name,
+      const { data } = await axios.post('http://localhost:5000/api/auth/verify', {
         email: formData.email,
-        phone: formData.phone
-      };
-      
-      login(userData);
-      
+        otp: otp,
+      });
+
+      login({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        token: data.token
+      });
+
       toast({
         title: 'Account created!',
         description: 'Welcome to Panchhi Sarees. Your account has been created successfully.',
       });
-      
+
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Verification failed',
-        description: 'Invalid OTP. Please try again.',
+        description: error?.response?.data?.message || 'Invalid OTP. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -101,8 +105,27 @@ const RegisterPage = () => {
   };
 
   const handleResendOTP = async () => {
-    // Mock resend OTP
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      setIsLoading(true);
+      await axios.post('http://localhost:5000/api/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+      toast({
+        title: 'OTP resent!',
+        description: 'Check your email again.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Resend failed',
+        description: error?.response?.data?.message || 'Try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

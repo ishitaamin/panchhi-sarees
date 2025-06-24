@@ -1,63 +1,86 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Filter, ChevronDown, X } from 'lucide-react';
+import { Filter, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import productsData from '../data/products.json';
+import axios from 'axios';
+
+type Product = {
+  _id: string;
+  name: string;
+  image?: string;
+  description?: string;
+  price: number;
+  category?: string;
+  quantity: number;
+  fabric?: string;
+  rating?: number;
+  createdAt?: string;
+};
 
 const CategoryPage = () => {
   const { category } = useParams();
   const [showFilters, setShowFilters] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
   const [filters, setFilters] = useState({
     priceRange: [0, 60000],
     fabric: '',
-    size: '',
-    color: '',
     rating: 0,
     sortBy: 'featured'
   });
 
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/api/products')
+      .then(res => setProducts(res.data))
+      .catch(err => {
+        console.error('Failed to fetch products:', err);
+      });
+  }, []);
+
   const categoryProducts = useMemo(() => {
-    let filtered = productsData.filter(product => 
-      category === 'all' || product.category === category
+    let filtered = products.filter(product =>
+      category === 'all' || product.category?.toLowerCase() === category?.toLowerCase()
     );
 
-    // Apply filters
     if (filters.fabric) {
       filtered = filtered.filter(p => p.fabric === filters.fabric);
     }
+
     if (filters.rating > 0) {
-      filtered = filtered.filter(p => p.rating >= filters.rating);
+      filtered = filtered.filter(p => (p.rating || 0) >= filters.rating);
     }
-    filtered = filtered.filter(p => 
+
+    filtered = filtered.filter(p =>
       p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]
     );
 
-    // Apply sorting
     switch (filters.sortBy) {
       case 'price-low':
         return filtered.sort((a, b) => a.price - b.price);
       case 'price-high':
         return filtered.sort((a, b) => b.price - a.price);
       case 'rating':
-        return filtered.sort((a, b) => b.rating - a.rating);
+        return filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case 'newest':
-        return filtered.sort((a, b) => b.id - a.id);
+        return filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt || '2000-01-01').getTime() -
+            new Date(a.createdAt || '2000-01-01').getTime()
+        );
       default:
         return filtered;
     }
-  }, [category, filters]);
+  }, [products, category, filters]);
 
   const categoryTitle = {
-    'sarees': 'Sarees',
-    'kurtis': 'Kurtis',
-    'lehengas': 'Lehengas',
-    'bridal': 'Bridal Wear',
-    'all': 'All Products'
-  }[category || 'all'] || 'Products';
+    sarees: 'Sarees',
+    kurtis: 'Kurtis',
+    lehengas: 'Lehengas',
+    bridal: 'Bridal Wear',
+    all: 'All Products'
+  }[category?.toLowerCase() || 'all'] || 'Products';
 
-  const fabrics = [...new Set(productsData.map(p => p.fabric))];
-  const sizes = [...new Set(productsData.flatMap(p => p.size || []))];
+  const fabrics = [...new Set(products.map(p => p.fabric).filter(Boolean))];
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -67,8 +90,6 @@ const CategoryPage = () => {
     setFilters({
       priceRange: [0, 60000],
       fabric: '',
-      size: '',
-      color: '',
       rating: 0,
       sortBy: 'featured'
     });
@@ -96,7 +117,11 @@ const CategoryPage = () => {
             >
               <Filter className="h-4 w-4" />
               <span>Filters</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  showFilters ? 'rotate-180' : ''
+                }`}
+              />
             </button>
           </div>
 
@@ -121,7 +146,7 @@ const CategoryPage = () => {
                   </label>
                   <select
                     value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                    onChange={e => handleFilterChange('sortBy', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] focus:border-transparent"
                   >
                     <option value="featured">Featured</option>
@@ -144,7 +169,12 @@ const CategoryPage = () => {
                       max="60000"
                       step="1000"
                       value={filters.priceRange[1]}
-                      onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
+                      onChange={e =>
+                        handleFilterChange('priceRange', [
+                          0,
+                          parseInt(e.target.value)
+                        ])
+                      }
                       className="w-full accent-[#f15a59]"
                     />
                     <div className="flex justify-between text-sm text-gray-600">
@@ -161,36 +191,16 @@ const CategoryPage = () => {
                   </label>
                   <select
                     value={filters.fabric}
-                    onChange={(e) => handleFilterChange('fabric', e.target.value)}
+                    onChange={e => handleFilterChange('fabric', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] focus:border-transparent"
                   >
                     <option value="">All Fabrics</option>
                     {fabrics.map(fabric => (
-                      <option key={fabric} value={fabric}>{fabric.charAt(0).toUpperCase() + fabric.slice(1)}</option>
+                      <option key={fabric} value={fabric}>
+                        {fabric.charAt(0).toUpperCase() + fabric.slice(1)}
+                      </option>
                     ))}
                   </select>
-                </div>
-
-                {/* Size */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Size
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {sizes.map(size => (
-                      <button
-                        key={size}
-                        onClick={() => handleFilterChange('size', filters.size === size ? '' : size)}
-                        className={`p-2 text-sm border rounded-lg transition-colors ${
-                          filters.size === size
-                            ? 'bg-[#f15a59] text-white border-[#f15a59]'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-[#f15a59]'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Rating */}
@@ -202,7 +212,12 @@ const CategoryPage = () => {
                     {[4, 3, 2, 1].map(rating => (
                       <button
                         key={rating}
-                        onClick={() => handleFilterChange('rating', filters.rating === rating ? 0 : rating)}
+                        onClick={() =>
+                          handleFilterChange(
+                            'rating',
+                            filters.rating === rating ? 0 : rating
+                          )
+                        }
                         className={`flex items-center space-x-2 w-full p-2 text-left rounded-lg transition-colors ${
                           filters.rating === rating
                             ? 'bg-[#f15a59]/10 text-[#f15a59]'
@@ -229,12 +244,14 @@ const CategoryPage = () => {
             {categoryProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categoryProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product._id} product={product} />
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No products found matching your filters.</p>
+                <p className="text-gray-500 text-lg">
+                  No products found matching your filters.
+                </p>
                 <button
                   onClick={clearFilters}
                   className="mt-4 text-[#f15a59] hover:text-[#d63031] font-medium"

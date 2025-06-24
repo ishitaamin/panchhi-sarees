@@ -33,6 +33,7 @@ const LoginPage = () => {
           name: data.name,
           email: data.email,
           phone: data.phone,
+          token: data.token
         });
 
         toast({
