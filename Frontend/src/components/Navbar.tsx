@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, LogOut } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import WishlistButton from './WishlistButton';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +17,7 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
     }
   };
 
@@ -29,14 +32,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img
-              src="/assets/images/PanchhiLogo.png"
-              alt="Panchhi Sarees Logo"
-              className="h-14 w-auto max-w-full object-contain"
-            />
+            <img src="/assets/images/PanchhiLogo.png" alt="Panchhi" className="h-14 w-auto max-w-full object-contain" />
           </Link>
 
-          {/* Search Bar - Desktop */}
+          {/* Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-lg mx-8">
             <div className="relative w-full">
               <input
@@ -50,8 +49,10 @@ const Navbar = () => {
             </div>
           </form>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <WishlistButton />
+
             <Link to="/cart" className="relative p-2 text-[#20283a] hover:text-[#f15a59] transition-colors">
               <ShoppingCart className="h-6 w-6" />
               {getTotalItems() > 0 && (
@@ -92,7 +93,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <form onSubmit={handleSearch} className="mb-4">
@@ -108,15 +109,21 @@ const Navbar = () => {
               </div>
             </form>
 
-            <div className="flex flex-col space-y-2">
-              <Link
-                to="/cart"
-                className="flex items-center space-x-3 p-3 text-[#20283a] hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Cart ({getTotalItems()})</span>
-              </Link>
+            <div className="flex items-center justify-between px-3 py-2 border-t mt-3 pt-3">
+              <div className="flex items-center space-x-4">
+                <WishlistButton />
+
+                <Link to="/cart" className="relative" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" size="icon">
+                    <ShoppingCart className="h-6 w-6" />
+                    {getTotalItems() > 0 && (
+                      <span className="absolute -top-2 -right-2 h-5 w-5 bg-[#f15a59] text-white text-xs rounded-full flex items-center justify-center">
+                        {getTotalItems()}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              </div>
 
               {isAuthenticated ? (
                 <>
@@ -140,13 +147,10 @@ const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  className="flex items-center space-x-3 p-3 text-[#20283a] hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User className="h-5 w-5" />
-                  <span>Login</span>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="bg-[#f15a59] hover:bg-[#d63031] text-white">
+                    Login
+                  </Button>
                 </Link>
               )}
             </div>

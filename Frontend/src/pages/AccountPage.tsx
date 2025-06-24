@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { User, MapPin, ShoppingBag, Heart, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import AddressForm from '@/components/AddressForm';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -139,14 +140,7 @@ const AccountPage = () => {
               
               {activeTab === 'addresses' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-[#20283a] mb-6">Saved Addresses</h2>
-                  <div className="text-center py-12">
-                    <MapPin className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">No addresses saved</p>
-                    <Button className="mt-4 bg-[#f15a59] hover:bg-[#d63031] text-white">
-                      Add Address
-                    </Button>
-                  </div>
+                  <AddressForm allowEditing={true} />
                 </div>
               )}
               
