@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +12,11 @@ interface RazorpayPaymentProps {
     customerName: string;
     customerEmail: string;
     customerPhone: string;
+  };
+  orderData: {
+    items: any[];
+    shippingAddress: any;
+    totalAmount: number;
   };
   onPaymentSuccess: (paymentData: any) => void;
   onPaymentFailure: (error: any) => void;
@@ -27,6 +33,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   amount,
   currency = 'INR',
   orderDetails,
+  orderData,
   onPaymentSuccess,
   onPaymentFailure
 }) => {
@@ -58,7 +65,6 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       return;
     }
 
-    // 1. Create order on backend
     try {
       const res = await fetch('http://localhost:5000/api/orders/create-razorpay-order', {
         method: 'POST',
@@ -80,12 +86,42 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         description: `Payment for ${orderDetails.productName}`,
         image: '/assets/images/PanchhiLogo.png',
         order_id: data.orderId,
-        handler: function (response: any) {
-          toast({
-            title: "Payment Successful!",
-            description: `Payment ID: ${response.razorpay_payment_id}`,
-          });
-          onPaymentSuccess(response);
+        handler: async function (response: any) {
+          try {
+            // Verify payment and create order
+            const token = localStorage.getItem('token');
+            const verifyRes = await fetch('http://localhost:5000/api/orders/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData: orderData,
+              }),
+            });
+
+            if (verifyRes.ok) {
+              const order = await verifyRes.json();
+              toast({
+                title: "Payment Successful!",
+                description: `Order #${order._id} has been placed successfully.`,
+              });
+              onPaymentSuccess({ ...response, order });
+            } else {
+              throw new Error("Payment verification failed");
+            }
+          } catch (error) {
+            toast({
+              title: "Payment Error",
+              description: "Payment completed but order creation failed. Please contact support.",
+              variant: "destructive",
+            });
+            onPaymentFailure(error);
+          }
         },
         prefill: {
           name: orderDetails.customerName,

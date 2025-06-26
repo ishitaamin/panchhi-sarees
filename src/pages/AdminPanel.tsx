@@ -7,6 +7,7 @@ import AdminLogin from '@/components/AdminLogin';
 import ImageUpload from '@/components/ImageUpload';
 import Pagination from '@/components/Pagination';
 import ProductSearchFilter from '@/components/ProductSearchFilter';
+import OrderSearchFilter from '@/components/OrderSearchFilter';
 import axios from 'axios';
 
 const AdminPanel = () => {
@@ -30,6 +31,14 @@ const AdminPanel = () => {
 
   // Form validation errors
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Orders state
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [ordersCurrentPage, setOrdersCurrentPage] = useState(1);
+  const [ordersItemsPerPage, setOrdersItemsPerPage] = useState(5);
+  const [orderSearchTerm, setOrderSearchTerm] = useState('');
+  const [selectedOrderStatus, setSelectedOrderStatus] = useState('All Statuses');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/products')
@@ -79,6 +88,11 @@ const AdminPanel = () => {
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  // Orders pagination
+  const ordersTotalPages = Math.ceil(filteredOrders.length / ordersItemsPerPage);
+  const ordersStartIndex = (ordersCurrentPage - 1) * ordersItemsPerPage;
+  const paginatedOrders = filteredOrders.slice(ordersStartIndex, ordersStartIndex + ordersItemsPerPage);
 
   // Form validation
   const validateProductForm = () => {
@@ -223,6 +237,63 @@ const AdminPanel = () => {
   const handleViewProductOnSite = (category: string) => {
     const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
     window.open(`/category/${categorySlug}`, '_blank');
+  };
+
+  // Fetch orders
+  useEffect(() => {
+    if (activeTab === 'orders') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.get('http://localhost:5000/api/orders/all', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then((res) => setOrders(res.data))
+        .catch((err) => console.error(err));
+      }
+    }
+  }, [activeTab]);
+
+  // Filter orders
+  useEffect(() => {
+    let filtered = [...orders];
+
+    if (orderSearchTerm) {
+      filtered = filtered.filter((order: any) =>
+        order._id.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+        order.user?.name?.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+        order.user?.email?.toLowerCase().includes(orderSearchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedOrderStatus !== 'All Statuses') {
+      filtered = filtered.filter((order: any) => order.orderStatus === selectedOrderStatus);
+    }
+
+    setFilteredOrders(filtered);
+    setOrdersCurrentPage(1);
+  }, [orders, orderSearchTerm, selectedOrderStatus]);
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Refresh orders
+      const updated = await axios.get('http://localhost:5000/api/orders/all', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(updated.data);
+      toast({ title: "Order status updated successfully" });
+    } catch (error: any) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to update order status",
+        variant: "destructive" 
+      });
+    }
   };
 
   if (!isAdminAuthenticated) {
@@ -570,9 +641,103 @@ const AdminPanel = () => {
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-[#20283a] mb-4">Order Management</h3>
-            <p className="text-gray-600">Order management functionality coming soon...</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-[#20283a]">Order Management</h2>
+            </div>
+
+            {/* Order Search and Filter */}
+            <OrderSearchFilter
+              searchTerm={orderSearchTerm}
+              onSearchChange={setOrderSearchTerm}
+              selectedStatus={selectedOrderStatus}
+              onStatusChange={setSelectedOrderStatus}
+            />
+
+            {/* Orders List */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-[#20283a]">Orders ({filteredOrders.length})</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedOrders.map((order: any) => (
+                      <tr key={order._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">#{order._id.slice(-8)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{order.user?.name}</div>
+                          <div className="text-sm text-gray-500">{order.user?.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {order.orderItems.length} item(s)
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">₹{order.totalAmount.toLocaleString()}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={order.orderStatus}
+                            onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Show order details modal or navigate to order details page
+                              console.log('View order details:', order);
+                            }}
+                          >
+                            View Details
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Orders Pagination */}
+              {filteredOrders.length > 0 && (
+                <Pagination
+                  currentPage={ordersCurrentPage}
+                  totalPages={ordersTotalPages}
+                  onPageChange={setOrdersCurrentPage}
+                  itemsPerPage={ordersItemsPerPage}
+                  onItemsPerPageChange={setOrdersItemsPerPage}
+                  totalItems={filteredOrders.length}
+                />
+              )}
+            </div>
           </div>
         )}
       </div>

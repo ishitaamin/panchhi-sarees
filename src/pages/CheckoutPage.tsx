@@ -57,7 +57,8 @@ const CheckoutPage = () => {
     if (!buyNowProduct) {
       clearCart();
     }
-    // Here you would typically save the order to your backend
+    // Redirect to success page or account page
+    window.location.href = '/account';
   };
 
   const handlePaymentFailure = (error: any) => {
@@ -140,6 +141,19 @@ const CheckoutPage = () => {
                     customerName: user.name,
                     customerEmail: user.email,
                     customerPhone: user.phone || selectedAddress.phone,
+                  }}
+                  orderData={{
+                    items: checkoutItems.map(item => ({
+                      product: item.id,
+                      quantity: item.quantity,
+                      size: item.size,
+                      color: item.color,
+                      price: item.price,
+                      name: item.name,
+                      image: item.image,
+                    })),
+                    shippingAddress: selectedAddress,
+                    totalAmount: totalAmount,
                   }}
                   onPaymentSuccess={handlePaymentSuccess}
                   onPaymentFailure={handlePaymentFailure}

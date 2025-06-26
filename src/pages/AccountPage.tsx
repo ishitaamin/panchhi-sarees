@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import AddressForm from '@/components/AddressForm';
+import axios from 'axios';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState('profile');
+  const [userOrders, setUserOrders] = useState([]);
 
   if (!isAuthenticated) {
     return (
@@ -25,6 +27,19 @@ const AccountPage = () => {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'orders') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.get('http://localhost:5000/api/orders/my', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then((res) => setUserOrders(res.data))
+        .catch((err) => console.error('Error fetching orders:', err));
+      }
+    }
+  }, [isAuthenticated, activeTab]);
 
   const menuItems = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -129,15 +144,69 @@ const AccountPage = () => {
               {activeTab === 'orders' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">My Orders</h2>
-                  <div className="text-center py-12">
-                    <ShoppingBag className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">No orders yet</p>
-                    <Link to="/">
-                      <Button className="mt-4 bg-[#f15a59] hover:bg-[#d63031] text-white">
-                        Start Shopping
-                      </Button>
-                    </Link>
-                  </div>
+                  {userOrders.length === 0 ? (
+                    <div className="text-center py-12">
+                      <ShoppingBag className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-600">No orders yet</p>
+                      <Link to="/">
+                        <Button className="mt-4 bg-[#f15a59] hover:bg-[#d63031] text-white">
+                          Start Shopping
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userOrders.map((order: any) => (
+                        <div key={order._id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-semibold text-[#20283a]">Order #{order._id.slice(-8)}</h3>
+                              <p className="text-sm text-gray-600">
+                                Placed on {new Date(order.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">₹{order.totalAmount.toLocaleString()}</p>
+                              <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' :
+                                order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                                order.orderStatus === 'confirmed' ? 'bg-yellow-100 text-yellow-800' :
+                                order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {order.orderItems.map((item: any, index: number) => (
+                              <div key={index} className="flex items-center space-x-3 py-2 border-t border-gray-100 first:border-t-0">
+                                <img
+                                  src={item.image || 'https://via.placeholder.com/50'}
+                                  alt={item.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-sm">{item.name}</h4>
+                                  <p className="text-xs text-gray-600">
+                                    Qty: {item.quantity} {item.size && `• Size: ${item.size}`}
+                                  </p>
+                                </div>
+                                <p className="font-semibold text-sm">₹{(item.price * item.quantity).toLocaleString()}</p>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <p className="text-sm text-gray-600">
+                              <strong>Shipping Address:</strong> {order.shippingAddress.fullName}, {order.shippingAddress.addressLine1}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               
