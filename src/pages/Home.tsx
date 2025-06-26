@@ -206,7 +206,7 @@ const Home = () => {
                 <div className="grid gap-1 p-4">
                   <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Sarees</Link>
                   <Link to="/category/kurtis" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Kurtis</Link>
-                  <Link to="/category/chaniya-choli" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Chaniya Choli</Link>
+                  <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Chaniya Choli</Link>
                   <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Gown</Link>
                   <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Indo-Western</Link>
                   <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Lehengas</Link>

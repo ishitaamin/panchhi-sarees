@@ -100,7 +100,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast({ title: "Added to cart" });
     } catch (err) {
       console.error("Add to cart failed:", err);
-      toast({ title: "Failed to add to cart", variant: "destructive" });
+      toast({ title: "Please select the size", variant: "destructive" });
     }
   };
 

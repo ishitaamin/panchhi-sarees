@@ -18,16 +18,16 @@ const AdminPanel = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSize, setSelectedSize] = useState('All Sizes');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  
+
   // Form validation errors
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -51,26 +51,26 @@ const AdminPanel = () => {
   // Filter and search logic
   useEffect(() => {
     let filtered = [...products];
-    
+
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter((product: any) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     // Apply category filter
     if (selectedCategory !== 'All Categories') {
       filtered = filtered.filter((product: any) => product.category === selectedCategory);
     }
-    
+
     // Apply size filter
     if (selectedSize !== 'All Sizes') {
       filtered = filtered.filter((product: any) =>
         product.size && product.size.includes(selectedSize)
       );
     }
-    
+
     setFilteredProducts(filtered);
     setCurrentPage(1); // Reset to first page when filters change
   }, [products, searchTerm, selectedCategory, selectedSize]);
@@ -83,15 +83,16 @@ const AdminPanel = () => {
   // Form validation
   const validateProductForm = () => {
     const errors: Record<string, string> = {};
-    
+
     if (!newProduct.name.trim()) errors.name = 'Product name is required';
     if (!newProduct.category) errors.category = 'Category is required';
     if (!newProduct.price || Number(newProduct.price) <= 0) errors.price = 'Valid price is required';
     if (!newProduct.stock || Number(newProduct.stock) < 0) errors.stock = 'Valid stock quantity is required';
     if (!newProduct.description.trim()) errors.description = 'Description is required';
     if (newProduct.size.length === 0) errors.size = 'At least one size must be selected';
+    if (!newProduct.fabric.trim()) errors.fabric = 'Fabric name is required';
     if (!editingProduct && newProduct.images.length === 0) errors.images = 'Product image is required';
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -300,16 +301,6 @@ const AdminPanel = () => {
               </div>
             </div>
 
-            {/* Search and Filter */}
-            <ProductSearchFilter
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedSize={selectedSize}
-              onSizeChange={setSelectedSize}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-            />
-
             {/* Add/Edit Product Form */}
             {showAddProduct && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -326,9 +317,8 @@ const AdminPanel = () => {
                         type="text"
                         value={newProduct.name}
                         onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
-                          formErrors.name ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${formErrors.name ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         placeholder="Enter product name"
                       />
                       {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
@@ -340,9 +330,8 @@ const AdminPanel = () => {
                       <select
                         value={newProduct.category}
                         onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
-                          formErrors.category ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${formErrors.category ? 'border-red-500' : 'border-gray-300'
+                          }`}
                       >
                         <option value="">Select Category</option>
                         <option value="Sarees">Sarees</option>
@@ -360,9 +349,8 @@ const AdminPanel = () => {
                         type="number"
                         value={newProduct.price}
                         onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
-                          formErrors.price ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${formErrors.price ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         placeholder="Enter price"
                       />
                       {formErrors.price && <p className="text-red-500 text-xs mt-1">{formErrors.price}</p>}
@@ -375,9 +363,8 @@ const AdminPanel = () => {
                         type="number"
                         value={newProduct.stock}
                         onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
-                          formErrors.stock ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${formErrors.stock ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         placeholder="Enter stock quantity"
                       />
                       {formErrors.stock && <p className="text-red-500 text-xs mt-1">{formErrors.stock}</p>}
@@ -420,16 +407,15 @@ const AdminPanel = () => {
                       value={newProduct.description}
                       onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                       rows={3}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
-                        formErrors.description ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${formErrors.description ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       placeholder="Enter product description"
                     />
                     {formErrors.description && <p className="text-red-500 text-xs mt-1">{formErrors.description}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Fabric</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Fabric <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={newProduct.fabric}
@@ -437,6 +423,7 @@ const AdminPanel = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
                       placeholder="Enter fabric type"
                     />
+                    {formErrors.fabric && <p className="text-red-500 text-xs mt-1">{formErrors.fabric}</p>}
                   </div>
 
                   <div>
@@ -489,6 +476,16 @@ const AdminPanel = () => {
                 ))}
               </div>
             </div>
+
+            {/* Search and Filter */}
+            <ProductSearchFilter
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
 
             {/* Products List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -555,7 +552,7 @@ const AdminPanel = () => {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Pagination */}
               {filteredProducts.length > 0 && (
                 <Pagination
@@ -579,7 +576,7 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
-      
+
       {/* Loading overlay */}
       {isLoading && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">

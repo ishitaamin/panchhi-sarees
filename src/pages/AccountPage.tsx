@@ -5,7 +5,7 @@ import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-re
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
-import AddressManager from '@/components/AddressManager';
+import AddressForm from '@/components/AddressForm';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -144,7 +144,7 @@ const AccountPage = () => {
               
               {activeTab === 'addresses' && (
                 <div>
-                  <AddressManager allowEditing={true} />
+                  <AddressForm allowEditing={true} />
                 </div>
               )}
               
