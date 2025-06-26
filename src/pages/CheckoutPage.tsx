@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import AddressForm, { Address } from '@/components/AddressForm';
+import AddressManager, { Address } from '@/components/AddressManager';
 import RazorpayPayment from '@/components/RazorpayPayment';
 
 const CheckoutPage = () => {
@@ -75,7 +75,11 @@ const CheckoutPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Address */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <AddressForm onAddressSelect={setSelectedAddress} showSelection={true} allowEditing={true} />
+              <AddressManager 
+                onAddressSelect={setSelectedAddress} 
+                showSelection={true} 
+                allowEditing={true} 
+              />
             </div>
 
             {/* Order Items */}

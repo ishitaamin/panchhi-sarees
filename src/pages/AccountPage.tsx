@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
-import AddressForm from '@/components/AddressForm';
+import AddressManager from '@/components/AddressManager';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -143,7 +144,7 @@ const AccountPage = () => {
               
               {activeTab === 'addresses' && (
                 <div>
-                  <AddressForm allowEditing={true} />
+                  <AddressManager allowEditing={true} />
                 </div>
               )}
               

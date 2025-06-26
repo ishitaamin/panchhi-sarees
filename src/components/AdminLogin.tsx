@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +40,7 @@ const AdminLogin = () => {
 
     setIsLoading(true);
     try {
-      await loginAdmin(formData.username, formData.password);
+      await loginAdmin(formData);
       toast({ title: "Login successful!" });
     } catch (error) {
       console.error('Login failed:', error);
