@@ -1,6 +1,7 @@
 
 import Order from "../models/Order.js";
 import Razorpay from "razorpay";
+import { sendOrderShippedEmail } from "../utils/sendMail.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -117,6 +118,17 @@ export const updateOrderStatus = async (req, res) => {
     
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
+    }
+    
+    // Send email notification when order is shipped
+    if (status === 'shipped' && order.user?.email) {
+      try {
+        await sendOrderShippedEmail(order.user.email, order);
+        console.log('✅ Order shipped email sent to:', order.user.email);
+      } catch (emailError) {
+        console.error('❌ Failed to send order shipped email:', emailError);
+        // Continue with the response even if email fails
+      }
     }
     
     res.json(order);

@@ -4,7 +4,7 @@ import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-re
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
-import AddressForm from '@/components/AddressForm';
+import AddressManager from '@/components/AddressManager';
 import axios from 'axios';
 
 const AccountPage = () => {
@@ -12,7 +12,10 @@ const AccountPage = () => {
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState('profile');
   const [userOrders, setUserOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
+  // Early return for authentication check
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -30,13 +33,28 @@ const AccountPage = () => {
 
   useEffect(() => {
     if (isAuthenticated && activeTab === 'orders') {
+      setIsLoading(true);
+      setError('');
+      
       const token = localStorage.getItem('token');
       if (token) {
         axios.get('http://localhost:5000/api/orders/my', {
           headers: { Authorization: `Bearer ${token}` }
         })
-        .then((res) => setUserOrders(res.data))
-        .catch((err) => console.error('Error fetching orders:', err));
+        .then((res) => {
+          setUserOrders(res.data);
+          setError('');
+        })
+        .catch((err) => {
+          console.error('Error fetching orders:', err);
+          setError('Failed to load orders');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+        setError('Authentication required');
       }
     }
   }, [isAuthenticated, activeTab]);
@@ -53,6 +71,15 @@ const AccountPage = () => {
     logout();
     window.location.reload();
   };
+
+  // Loading state
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,7 +171,22 @@ const AccountPage = () => {
               {activeTab === 'orders' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">My Orders</h2>
-                  {userOrders.length === 0 ? (
+                  
+                  {isLoading ? (
+                    <div className="flex justify-center py-12">
+                      <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin"></div>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-12">
+                      <p className="text-red-600 mb-4">{error}</p>
+                      <Button 
+                        onClick={() => setActiveTab('orders')}
+                        className="bg-[#f15a59] hover:bg-[#d63031] text-white"
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  ) : userOrders.length === 0 ? (
                     <div className="text-center py-12">
                       <ShoppingBag className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                       <p className="text-gray-600">No orders yet</p>
@@ -212,7 +254,7 @@ const AccountPage = () => {
               
               {activeTab === 'addresses' && (
                 <div>
-                  <AddressForm allowEditing={true} />
+                  <AddressManager allowEditing={true} />
                 </div>
               )}
               

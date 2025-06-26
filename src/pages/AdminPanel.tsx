@@ -8,6 +8,17 @@ import ImageUpload from '@/components/ImageUpload';
 import Pagination from '@/components/Pagination';
 import ProductSearchFilter from '@/components/ProductSearchFilter';
 import OrderSearchFilter from '@/components/OrderSearchFilter';
+import OrderDetailsModal from '@/components/OrderDetailsModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import axios from 'axios';
 
 const AdminPanel = () => {
@@ -40,6 +51,13 @@ const AdminPanel = () => {
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
   const [selectedOrderStatus, setSelectedOrderStatus] = useState('All Statuses');
 
+  // Modal states
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{orderId: string, newStatus: string} | null>(null);
+
+  // Fetch products
   useEffect(() => {
     axios.get('http://localhost:5000/api/products')
       .then((res) => setProducts(res.data))
@@ -273,6 +291,23 @@ const AdminPanel = () => {
     setOrdersCurrentPage(1);
   }, [orders, orderSearchTerm, selectedOrderStatus]);
 
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    if (newStatus === 'shipped') {
+      setPendingStatusChange({ orderId, newStatus });
+      setShowStatusConfirm(true);
+    } else {
+      updateOrderStatus(orderId, newStatus);
+    }
+  };
+
+  const confirmStatusChange = () => {
+    if (pendingStatusChange) {
+      updateOrderStatus(pendingStatusChange.orderId, pendingStatusChange.newStatus);
+    }
+    setShowStatusConfirm(false);
+    setPendingStatusChange(null);
+  };
+
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const token = localStorage.getItem('token');
@@ -286,7 +321,12 @@ const AdminPanel = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(updated.data);
-      toast({ title: "Order status updated successfully" });
+      
+      if (newStatus === 'shipped') {
+        toast({ title: "Order marked as shipped and confirmation email sent to customer" });
+      } else {
+        toast({ title: "Order status updated successfully" });
+      }
     } catch (error: any) {
       toast({ 
         title: "Error", 
@@ -294,6 +334,11 @@ const AdminPanel = () => {
         variant: "destructive" 
       });
     }
+  };
+
+  const handleViewOrderDetails = (order: any) => {
+    setSelectedOrder(order);
+    setShowOrderModal(true);
   };
 
   if (!isAdminAuthenticated) {
@@ -693,7 +738,7 @@ const AdminPanel = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <select
                             value={order.orderStatus}
-                            onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
                             className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
                           >
                             <option value="pending">Pending</option>
@@ -712,10 +757,7 @@ const AdminPanel = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              // Show order details modal or navigate to order details page
-                              console.log('View order details:', order);
-                            }}
+                            onClick={() => handleViewOrderDetails(order)}
                           >
                             View Details
                           </Button>
@@ -740,14 +782,37 @@ const AdminPanel = () => {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="w-12 h-12 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin" />
-        </div>
-      )}
+        {/* Order Details Modal */}
+        <OrderDetailsModal
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          order={selectedOrder}
+        />
+
+        {/* Status Change Confirmation Dialog */}
+        <AlertDialog open={showStatusConfirm} onOpenChange={setShowStatusConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to mark this order as "Shipped"? A confirmation email will be sent to the customer with order details.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowStatusConfirm(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmStatusChange}>Confirm & Send Email</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="w-12 h-12 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
