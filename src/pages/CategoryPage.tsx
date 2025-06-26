@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
@@ -14,6 +15,7 @@ type Product = {
   quantity: number;
   fabric?: string;
   rating?: number;
+  size?: string[];
   createdAt?: string;
 };
 
@@ -24,6 +26,7 @@ const CategoryPage = () => {
   const [filters, setFilters] = useState({
     priceRange: [0, 60000],
     fabric: '',
+    size: '',
     rating: 0,
     sortBy: 'featured'
   });
@@ -44,6 +47,10 @@ const CategoryPage = () => {
 
     if (filters.fabric) {
       filtered = filtered.filter(p => p.fabric === filters.fabric);
+    }
+
+    if (filters.size) {
+      filtered = filtered.filter(p => p.size && p.size.includes(filters.size));
     }
 
     if (filters.rating > 0) {
@@ -81,6 +88,7 @@ const CategoryPage = () => {
   }[category?.toLowerCase() || 'all'] || 'Products';
 
   const fabrics = [...new Set(products.map(p => p.fabric).filter(Boolean))];
+  const sizes = [...new Set(products.flatMap(p => p.size || []).filter(Boolean))];
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -90,6 +98,7 @@ const CategoryPage = () => {
     setFilters({
       priceRange: [0, 60000],
       fabric: '',
+      size: '',
       rating: 0,
       sortBy: 'featured'
     });
@@ -198,6 +207,25 @@ const CategoryPage = () => {
                     {fabrics.map(fabric => (
                       <option key={fabric} value={fabric}>
                         {fabric.charAt(0).toUpperCase() + fabric.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Size */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Size
+                  </label>
+                  <select
+                    value={filters.size}
+                    onChange={e => handleFilterChange('size', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] focus:border-transparent"
+                  >
+                    <option value="">All Sizes</option>
+                    {sizes.map(size => (
+                      <option key={size} value={size}>
+                        {size}
                       </option>
                     ))}
                   </select>
