@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-react';
