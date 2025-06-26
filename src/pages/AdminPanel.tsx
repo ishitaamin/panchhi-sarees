@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import AdminLogin from '@/components/AdminLogin';
 import ImageUpload from '@/components/ImageUpload';
+import Pagination from '@/components/Pagination';
+import ProductSearchFilter from '@/components/ProductSearchFilter';
 import axios from 'axios';
 
 const AdminPanel = () => {
@@ -14,7 +16,20 @@ const AdminPanel = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const { toast } = useToast();
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSize, setSelectedSize] = useState('All Sizes');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/products')
@@ -33,7 +48,60 @@ const AdminPanel = () => {
     size: [] as string[],
   });
 
+  // Filter and search logic
+  useEffect(() => {
+    let filtered = [...products];
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter((product: any) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Apply category filter
+    if (selectedCategory !== 'All Categories') {
+      filtered = filtered.filter((product: any) => product.category === selectedCategory);
+    }
+    
+    // Apply size filter
+    if (selectedSize !== 'All Sizes') {
+      filtered = filtered.filter((product: any) =>
+        product.size && product.size.includes(selectedSize)
+      );
+    }
+    
+    setFilteredProducts(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [products, searchTerm, selectedCategory, selectedSize]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  // Form validation
+  const validateProductForm = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!newProduct.name.trim()) errors.name = 'Product name is required';
+    if (!newProduct.category) errors.category = 'Category is required';
+    if (!newProduct.price || Number(newProduct.price) <= 0) errors.price = 'Valid price is required';
+    if (!newProduct.stock || Number(newProduct.stock) < 0) errors.stock = 'Valid stock quantity is required';
+    if (!newProduct.description.trim()) errors.description = 'Description is required';
+    if (newProduct.size.length === 0) errors.size = 'At least one size must be selected';
+    if (!editingProduct && newProduct.images.length === 0) errors.images = 'Product image is required';
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleAddProduct = async () => {
+    if (!validateProductForm()) {
+      toast({ title: "Please fill in all required fields", variant: "destructive" });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const formData = new FormData();
@@ -97,6 +165,7 @@ const AdminPanel = () => {
       toast({
         title: "Error",
         description: error?.response?.data?.message || "Something went wrong",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -144,6 +213,10 @@ const AdminPanel = () => {
 
   const handleImageSelect = (images: File[]) => {
     setNewProduct({ ...newProduct, images });
+  };
+
+  const handleViewProduct = (productId: string) => {
+    window.open(`/product/${productId}`, '_blank');
   };
 
   const handleViewProductOnSite = (category: string) => {
@@ -227,6 +300,16 @@ const AdminPanel = () => {
               </div>
             </div>
 
+            {/* Search and Filter */}
+            <ProductSearchFilter
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+
             {/* Add/Edit Product Form */}
             {showAddProduct && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -236,21 +319,30 @@ const AdminPanel = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Product Name <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={newProduct.name}
                         onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
+                          formErrors.name ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter product name"
                       />
+                      {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Category <span className="text-red-500">*</span>
+                      </label>
                       <select
                         value={newProduct.category}
                         onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
+                          formErrors.category ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       >
                         <option value="">Select Category</option>
                         <option value="Sarees">Sarees</option>
@@ -258,31 +350,44 @@ const AdminPanel = () => {
                         <option value="Lehengas">Lehengas</option>
                         <option value="Bridal">Bridal Wear</option>
                       </select>
+                      {formErrors.category && <p className="text-red-500 text-xs mt-1">{formErrors.category}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Price (₹) <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="number"
                         value={newProduct.price}
                         onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
+                          formErrors.price ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter price"
                       />
+                      {formErrors.price && <p className="text-red-500 text-xs mt-1">{formErrors.price}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Stock Quantity <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="number"
                         value={newProduct.stock}
                         onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
+                          formErrors.stock ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter stock quantity"
                       />
+                      {formErrors.stock && <p className="text-red-500 text-xs mt-1">{formErrors.stock}</p>}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Available Sizes <span className="text-red-500">*</span>
+                    </label>
                     <div className="flex flex-wrap gap-3">
                       {['Free Size', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((size) => {
                         const selected = newProduct.size.includes(size);
@@ -304,17 +409,23 @@ const AdminPanel = () => {
                         );
                       })}
                     </div>
+                    {formErrors.size && <p className="text-red-500 text-xs mt-1">{formErrors.size}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description <span className="text-red-500">*</span>
+                    </label>
                     <textarea
                       value={newProduct.description}
                       onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59] ${
+                        formErrors.description ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       placeholder="Enter product description"
                     />
+                    {formErrors.description && <p className="text-red-500 text-xs mt-1">{formErrors.description}</p>}
                   </div>
 
                   <div>
@@ -329,11 +440,14 @@ const AdminPanel = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Images {!editingProduct && <span className="text-red-500">*</span>}
+                    </label>
                     <ImageUpload
                       onImageSelect={handleImageSelect}
-                      existingImages={editingProduct ? [] : undefined} // or [] to skip previews
+                      existingImages={editingProduct ? [] : undefined}
                     />
+                    {formErrors.images && <p className="text-red-500 text-xs mt-1">{formErrors.images}</p>}
                   </div>
                 </div>
 
@@ -346,17 +460,13 @@ const AdminPanel = () => {
                     onClick={() => {
                       setShowAddProduct(false);
                       setEditingProduct(null);
+                      setFormErrors({});
                       setNewProduct({ name: '', category: '', price: '', stock: '', description: '', fabric: '', images: [], size: [] });
                     }}
                     variant="outline"
                   >
                     Cancel
                   </Button>
-                  {isLoading && (
-                    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">
-                      <div className="w-12 h-12 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin" />
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -383,7 +493,7 @@ const AdminPanel = () => {
             {/* Products List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-[#20283a]">Products</h3>
+                <h3 className="text-lg font-semibold text-[#20283a]">Products ({filteredProducts.length})</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -393,11 +503,12 @@ const AdminPanel = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sizes</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {products.map((product) => (
+                    {paginatedProducts.map((product) => (
                       <tr key={product._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{product.name}</div>
@@ -411,13 +522,18 @@ const AdminPanel = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{product.quantity}</div>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {product.size ? product.size.join(', ') : 'N/A'}
+                          </div>
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <Button
-                              onClick={() => handleViewProductOnSite(product.category)}
+                              onClick={() => handleViewProduct(product._id)}
                               variant="outline"
                               size="sm"
-                              title="View on website"
+                              title="View product page"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -439,6 +555,18 @@ const AdminPanel = () => {
                   </tbody>
                 </table>
               </div>
+              
+              {/* Pagination */}
+              {filteredProducts.length > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                  totalItems={filteredProducts.length}
+                />
+              )}
             </div>
           </div>
         )}
@@ -451,6 +579,13 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
+      
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="w-12 h-12 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 };
