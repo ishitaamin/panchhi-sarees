@@ -263,3 +263,15 @@ export const removeCartItem = asyncHandler(async (req, res) => {
     })),
   });
 });
+
+export const clearCart = async (req, res) => {
+  try {
+    const user = req.user; // from protect middleware
+    user.cart = []; // clear the cart array
+    await user.save();
+    res.status(200).json({ message: "Cart cleared successfully", cart: user.cart });
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    res.status(500).json({ message: "Failed to clear cart" });
+  }
+};

@@ -5,14 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log('📧 Email configuration:', {
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  user: process.env.SMTP_USER ? 'configured' : 'missing',
-  pass: process.env.SMTP_PASS ? 'configured' : 'missing'
-});
-
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT),
   secure: true,
@@ -20,15 +13,6 @@ const transporter = nodemailer.createTransporter({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
-
-// Verify transporter configuration
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('❌ SMTP configuration error:', error);
-  } else {
-    console.log('✅ SMTP server is ready to send emails');
-  }
 });
 
 export async function sendOTPEmail(email, otp) {
@@ -41,7 +25,6 @@ export async function sendOTPEmail(email, otp) {
       html: `<p>Hi,</p><p>Your OTP is: <strong>${otp}</strong></p><p>It is valid for 10 minutes.</p><p>Regards,<br/>Panchhi Sarees</p>`,
     });
     
-    console.log('✅ OTP email sent successfully:', info.messageId);
     return info;
   } catch (error) {
     console.error('❌ Failed to send OTP email:', error);
@@ -51,14 +34,6 @@ export async function sendOTPEmail(email, otp) {
 
 export async function sendOrderShippedEmail(email, order) {
   try {
-    console.log('📧 Preparing to send order shipped email to:', email);
-    console.log('📦 Order details:', {
-      id: order._id,
-      status: order.orderStatus,
-      totalAmount: order.totalAmount,
-      userEmail: order.user?.email
-    });
-
     const orderItemsHtml = order.orderItems.map(item => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -76,7 +51,7 @@ export async function sendOrderShippedEmail(email, order) {
         
         <p>Hi ${order.user.name},</p>
         
-        <p>Great news! Your order <strong>#${order._id.slice(-8)}</strong> has been shipped and is on its way to you.</p>
+        <p>Great news! Your order <strong>#${order._id.toString().slice(-8)}</strong> has been shipped and is on its way to you.</p>
         
         <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #20283a;">Order Details:</h3>
@@ -112,7 +87,7 @@ export async function sendOrderShippedEmail(email, order) {
         <p>Thank you for choosing Panchhi Sarees!</p>
         
         <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f15a59; color: white; border-radius: 8px;">
-          <p style="margin: 0;">For any questions, contact us at <a href="mailto:bhandaridhyeyh@gmail.com" style="color: white;">bhandaridhyeyh@gmail.com</a></p>
+          <p style="margin: 0;">For any questions, contact us at <a href="mailto:bhandaridhyeyh@gmail.com" style="color: white;">panchhisarees@gmail.com</a></p>
         </div>
       </div>
     `;
@@ -120,23 +95,11 @@ export async function sendOrderShippedEmail(email, order) {
     const mailOptions = {
       from: '"Panchhi Sarees" <bhandaridhyeyh@gmail.com>',
       to: email,
-      subject: `Order Shipped - #${order._id.slice(-8)} | Panchhi Sarees`,
+      subject: `Order Shipped - #${order._id.toString().slice(-8)} | Panchhi Sarees`,
       html: html,
     };
 
-    console.log('📧 Sending email with options:', {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject
-    });
-
     const info = await transporter.sendMail(mailOptions);
-    
-    console.log('✅ Order shipped email sent successfully:', {
-      messageId: info.messageId,
-      response: info.response,
-      envelope: info.envelope
-    });
     
     return info;
   } catch (error) {

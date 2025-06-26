@@ -21,7 +21,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Order Details - #{order._id.slice(-8)}</DialogTitle>
+          <DialogTitle>Order Details - #{order._id.toString().slice(-8)}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">

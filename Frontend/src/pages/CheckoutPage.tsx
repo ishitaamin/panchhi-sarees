@@ -5,13 +5,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import AddressForm, { Address } from '@/components/AddressForm';
 import RazorpayPayment from '@/components/RazorpayPayment';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutPage = () => {
   const { items, getTotalPrice, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get buy now product from location state
   const buyNowProduct = location.state?.buyNowProduct;
   const checkoutItems = buyNowProduct ? [buyNowProduct] : items;
@@ -52,13 +54,14 @@ const CheckoutPage = () => {
 
   const totalAmount = getItemsTotal() + Math.round(getItemsTotal() * 0.18);
 
-  const handlePaymentSuccess = (paymentData: any) => {
+  const handlePaymentSuccess = async (paymentData: any) => {
     console.log('Payment successful:', paymentData);
+
     if (!buyNowProduct) {
-      clearCart();
+      await clearCart(); // Ensure it runs fully
     }
-    // Redirect to success page or account page
-    window.location.href = '/';
+
+    navigate('/');
   };
 
   const handlePaymentFailure = (error: any) => {
@@ -69,7 +72,7 @@ const CheckoutPage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-[#20283a] mb-8">Checkout</h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
@@ -105,12 +108,12 @@ const CheckoutPage = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
               <h2 className="text-xl font-bold text-[#20283a] mb-4">Order Summary</h2>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -131,7 +134,7 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               </div>
-              
+
               {selectedAddress && user ? (
                 <RazorpayPayment
                   amount={totalAmount}
@@ -163,7 +166,7 @@ const CheckoutPage = () => {
                   Please select a delivery address to proceed
                 </div>
               )}
-              
+
               <Link to={buyNowProduct ? `/product/${buyNowProduct.id}` : "/cart"} className="block w-full mt-3">
                 <Button variant="outline" className="w-full">
                   {buyNowProduct ? 'Back to Product' : 'Back to Cart'}

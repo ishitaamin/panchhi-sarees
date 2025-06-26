@@ -18,7 +18,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, "quantity">, quantity?: number) => Promise<void>;
   removeFromCart: (id: string, size?: string, color?: string) => Promise<void>;
   updateQuantity: (id: string, quantity: number, size?: string, color?: string) => Promise<void>;
-  clearCart: () => void;
+  clearCart: () => Promise<void>;
   getTotalItems: () => number;
   getTotalPrice: () => number;
 }
@@ -173,8 +173,20 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const clearCart = () => {
-    setItems([]);
+  const clearCart = async () => {
+    try {
+      const token = getToken();
+      if (!token) return;
+
+      await axios.delete("http://localhost:5000/api/users/cart/all", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setItems([]);
+    } catch (err) {
+      console.error("Failed to clear cart:", err);
+      toast({ title: "Failed to clear cart", variant: "destructive" });
+    }
   };
 
   const getTotalItems = () => {

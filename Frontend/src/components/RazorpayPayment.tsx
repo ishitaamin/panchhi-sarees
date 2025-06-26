@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 interface RazorpayPaymentProps {
   amount: number;
@@ -38,7 +39,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   onPaymentFailure
 }) => {
   const { toast } = useToast();
-
+  const [isPaying, setIsPaying] = useState(false);
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
       if (window.Razorpay) {
@@ -55,6 +56,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   };
 
   const handlePayment = async () => {
+    setIsPaying(true); // Start loader
+
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
       toast({
@@ -62,6 +65,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         description: "Failed to load payment gateway. Please try again.",
         variant: "destructive",
       });
+      setIsPaying(false);
       return;
     }
 
@@ -74,9 +78,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
       const data = await res.json();
 
-      if (!data.orderId) {
-        throw new Error("Order ID not returned");
-      }
+      if (!data.orderId) throw new Error("Order ID not returned");
 
       const options = {
         key: 'rzp_test_yG8q2YkQ1lvGsE',
@@ -88,7 +90,6 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         order_id: data.orderId,
         handler: async function (response: any) {
           try {
-            // Verify payment and create order
             const token = localStorage.getItem('token');
             const verifyRes = await fetch('http://localhost:5000/api/orders/verify-payment', {
               method: 'POST',
@@ -121,6 +122,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
               variant: "destructive",
             });
             onPaymentFailure(error);
+          } finally {
+            setIsPaying(false); // Stop loader
           }
         },
         prefill: {
@@ -140,6 +143,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
               description: "Payment was cancelled by user.",
               variant: "destructive",
             });
+            setIsPaying(false); // Stop loader if user cancels
           }
         }
       };
@@ -151,6 +155,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           description: response.error.description,
           variant: "destructive",
         });
+        setIsPaying(false); // Stop loader on failure
         onPaymentFailure(response.error);
       });
 
@@ -161,6 +166,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
+      setIsPaying(false); // Stop loader on catch
       onPaymentFailure(error);
     }
   };
@@ -168,9 +174,18 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   return (
     <Button
       onClick={handlePayment}
-      className="w-full bg-[#f15a59] hover:bg-[#d63031] text-white"
+      disabled={isPaying}
+      className={`w-full text-white flex items-center justify-center space-x-2 ${isPaying ? 'bg-[#d63031]' : 'bg-[#f15a59] hover:bg-[#d63031]'
+        }`}
     >
-      Pay ₹{amount.toLocaleString()}
+      {isPaying ? (
+        <>
+          <Loader2 className="animate-spin w-4 h-4" />
+          <span>Processing...</span>
+        </>
+      ) : (
+        <>Pay ₹{amount.toLocaleString()}</>
+      )}
     </Button>
   );
 };

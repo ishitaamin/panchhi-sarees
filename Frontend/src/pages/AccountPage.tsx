@@ -9,36 +9,43 @@ import AddressForm from '@/components/AddressForm';
 import axios from 'axios';
 
 const AccountPage = () => {
-  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState('profile');
   const [userOrders, setUserOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [pageLoading, setPageLoading] = useState(true);
 
-  // Initialize page loading state
   useEffect(() => {
-    // Wait for auth context to finish loading
-    if (!authLoading) {
-      setPageLoading(false);
-    }
-  }, [authLoading]);
+    if (isAuthenticated && activeTab === 'orders') {
+      setIsLoading(true);
+      setError('');
 
-  // Show loading spinner while page is initializing
-  if (pageLoading || authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your account...</p>
-        </div>
-      </div>
-    );
-  }
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.get('http://localhost:5000/api/orders/my', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+          .then((res) => {
+            setUserOrders(res.data);
+            setError('');
+          })
+          .catch((err) => {
+            console.error('Error fetching orders:', err);
+            setError('Failed to load orders');
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      } else {
+        setIsLoading(false);
+        setError('Authentication required');
+      }
+    }
+  }, [isAuthenticated, activeTab]);
 
   // Early return for authentication check
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -53,34 +60,6 @@ const AccountPage = () => {
     );
   }
 
-  useEffect(() => {
-    if (isAuthenticated && activeTab === 'orders') {
-      setIsLoading(true);
-      setError('');
-      
-      const token = localStorage.getItem('token');
-      if (token) {
-        axios.get('http://localhost:5000/api/orders/my', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        .then((res) => {
-          setUserOrders(res.data);
-          setError('');
-        })
-        .catch((err) => {
-          console.error('Error fetching orders:', err);
-          setError('Failed to load orders');
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-      } else {
-        setIsLoading(false);
-        setError('Authentication required');
-      }
-    }
-  }, [isAuthenticated, activeTab]);
-
   const menuItems = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'orders', label: 'My Orders', icon: ShoppingBag },
@@ -94,25 +73,34 @@ const AccountPage = () => {
     window.location.href = '/';
   };
 
+  // Loading state
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-[#20283a] mb-8">My Account</h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-[#f15a59] rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.name?.charAt(0)?.toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#20283a]">{user?.name || 'User'}</h3>
-                  <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
+                  <h3 className="font-semibold text-[#20283a]">{user?.name}</h3>
+                  <p className="text-sm text-gray-600">{user?.email}</p>
                 </div>
               </div>
-              
+
               <nav className="space-y-2">
                 {menuItems.map((item) => {
                   const Icon = item.icon;
@@ -120,18 +108,17 @@ const AccountPage = () => {
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id)}
-                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                        activeTab === item.id
-                          ? 'bg-[#f15a59] text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === item.id
+                        ? 'bg-[#f15a59] text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <Icon className="h-5 w-5" />
                       <span>{item.label}</span>
                     </button>
                   );
                 })}
-                
+
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-red-600 hover:bg-red-50 transition-colors"
@@ -142,7 +129,7 @@ const AccountPage = () => {
               </nav>
             </div>
           </div>
-          
+
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -180,11 +167,11 @@ const AccountPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'orders' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">My Orders</h2>
-                  
+
                   {isLoading ? (
                     <div className="flex justify-center py-12">
                       <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin"></div>
@@ -192,7 +179,7 @@ const AccountPage = () => {
                   ) : error ? (
                     <div className="text-center py-12">
                       <p className="text-red-600 mb-4">{error}</p>
-                      <Button 
+                      <Button
                         onClick={() => setActiveTab('orders')}
                         className="bg-[#f15a59] hover:bg-[#d63031] text-white"
                       >
@@ -215,25 +202,24 @@ const AccountPage = () => {
                         <div key={order._id} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h3 className="font-semibold text-[#20283a]">Order #{order._id.slice(-8)}</h3>
+                              <h3 className="font-semibold text-[#20283a]">Order #{order._id.toString().slice(-8)}</h3>
                               <p className="text-sm text-gray-600">
                                 Placed on {new Date(order.createdAt).toLocaleDateString()}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="font-semibold">₹{order.totalAmount.toLocaleString()}</p>
-                              <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                                order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' :
+                              <span className={`inline-block px-2 py-1 text-xs rounded-full ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' :
                                 order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                                order.orderStatus === 'confirmed' ? 'bg-yellow-100 text-yellow-800' :
-                                order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
+                                  order.orderStatus === 'confirmed' ? 'bg-yellow-100 text-yellow-800' :
+                                    order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                      'bg-gray-100 text-gray-800'
+                                }`}>
                                 {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             {order.orderItems.map((item: any, index: number) => (
                               <div key={index} className="flex items-center space-x-3 py-2 border-t border-gray-100 first:border-t-0">
@@ -252,7 +238,7 @@ const AccountPage = () => {
                               </div>
                             ))}
                           </div>
-                          
+
                           <div className="mt-3 pt-3 border-t border-gray-100">
                             <p className="text-sm text-gray-600">
                               <strong>Shipping Address:</strong> {order.shippingAddress.fullName}, {order.shippingAddress.addressLine1}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
@@ -264,13 +250,13 @@ const AccountPage = () => {
                   )}
                 </div>
               )}
-              
+
               {activeTab === 'addresses' && (
                 <div>
                   <AddressForm allowEditing={true} />
                 </div>
               )}
-              
+
               {activeTab === 'wishlist' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">My Wishlist</h2>
@@ -309,7 +295,7 @@ const AccountPage = () => {
                   )}
                 </div>
               )}
-              
+
               {activeTab === 'settings' && (
                 <div>
                   <h2 className="text-xl font-semibold text-[#20283a] mb-6">Settings</h2>

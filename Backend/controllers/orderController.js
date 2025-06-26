@@ -110,8 +110,6 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
-    console.log(`🔄 Updating order ${id} status to ${status}`);
-    
     const order = await Order.findByIdAndUpdate(
       id,
       { orderStatus: status },
@@ -123,11 +121,8 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
     
-    console.log(`✅ Order ${id} status updated to ${status}`);
-    
     // Send email notification when order is shipped
     if (status === 'shipped') {
-      console.log(`📧 Attempting to send shipped email to ${order.user?.email}`);
       
       if (!order.user?.email) {
         console.error('❌ No user email found for order');
@@ -136,7 +131,6 @@ export const updateOrderStatus = async (req, res) => {
       
       try {
         await sendOrderShippedEmail(order.user.email, order);
-        console.log('✅ Order shipped email sent successfully to:', order.user.email);
         
         // Return success response with email confirmation
         return res.json({ 
