@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Heart, X } from 'lucide-react';
 import {
   Sheet,

@@ -44,7 +44,6 @@ const AdminPanel = () => {
       formData.append("category", newProduct.category);
       formData.append("fabric", newProduct.fabric);
 
-      // ✅ Append sizes as "size" (not sizes[])
       newProduct.size.forEach((s) => {
         formData.append("size", s);
       });
@@ -53,7 +52,15 @@ const AdminPanel = () => {
         formData.append("image", newProduct.images[0]);
       }
 
+      for (let pair of formData.entries()) {
+        console.log(`📤 ${pair[0]}: ${pair[1]}`);
+      }
+
       const token = localStorage.getItem("token");
+      if (!token) {
+        toast({ title: "No token", description: "Please login again" });
+        return;
+      }
 
       const config = {
         headers: {
@@ -80,14 +87,17 @@ const AdminPanel = () => {
         description: '',
         fabric: '',
         images: [],
-        size: [], // ✅ reset using "size"
+        size: [],
       });
 
       const updated = await axios.get('http://localhost:5000/api/products');
       setProducts(updated.data);
-    } catch (error) {
-      console.error(error);
-      toast({ title: "Error", description: "Something went wrong" });
+    } catch (error: any) {
+      console.error("❌ Product Add/Edit Error:", error?.response || error);
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -124,9 +134,9 @@ const AdminPanel = () => {
 
       const updated = await axios.get('http://localhost:5000/api/products');
       setProducts(updated.data);
-    } catch (err) {
-      console.error(err); // helpful for debugging
-      toast({ title: "Error", description: "Failed to delete product" });
+    } catch (err: any) {
+      console.error("❌ Product Deletion Error:", err?.response || err);
+      toast({ title: "Error", description: err?.response?.data?.message || "Failed to delete product" });
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +210,7 @@ const AdminPanel = () => {
               <h2 className="text-xl font-semibold text-[#20283a]">Product Management</h2>
               <div className="flex space-x-3">
                 <Button
-                  onClick={() => window.open('/search', '_blank')}
+                  onClick={() => window.open('/category/all', '_blank')}
                   variant="outline"
                   className="flex items-center space-x-2"
                 >
@@ -246,7 +256,7 @@ const AdminPanel = () => {
                         <option value="Sarees">Sarees</option>
                         <option value="Kurtis">Kurtis</option>
                         <option value="Lehengas">Lehengas</option>
-                        <option value="Bridal Wear">Bridal Wear</option>
+                        <option value="Bridal">Bridal Wear</option>
                       </select>
                     </div>
                     <div>
@@ -355,7 +365,7 @@ const AdminPanel = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h3 className="text-lg font-semibold text-[#20283a] mb-3">Quick Links - View Products by Category</h3>
               <div className="flex flex-wrap gap-2">
-                {['Sarees', 'Kurtis', 'Lehengas', 'Bridal Wear'].map((category) => (
+                {['Sarees', 'Kurtis', 'Lehengas', 'Bridal'].map((category) => (
                   <Button
                     key={category}
                     onClick={() => handleViewProductOnSite(category)}

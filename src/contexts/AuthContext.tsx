@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 
 // Define the user type
 interface User {
@@ -31,15 +32,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const storedUser = localStorage.getItem('authUser');
+  if (storedUser) {
+    const parsed = JSON.parse(storedUser);
+    setUser(parsed);
+    // Attach token to all Axios requests
+    axios.defaults.headers.common['Authorization'] = `Bearer ${parsed.token}`;
+  }
+}, []);
 
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem('authUser', JSON.stringify(userData));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
   };
 
   const logout = () => {

@@ -37,7 +37,7 @@ const CheckoutPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
-          <Link to="/">
+          <Link to="/category/all">
             <Button className="bg-[#f15a59] hover:bg-[#d63031] text-white">
               Continue Shopping
             </Button>
@@ -121,7 +121,7 @@ const CheckoutPage = () => {
                   <span className="text-green-600">Free</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax</span>
+                  <span>Tax (GST: 18%)</span>
                   <span>₹{Math.round(getItemsTotal() * 0.18).toLocaleString()}</span>
                 </div>
                 <div className="border-t pt-3">

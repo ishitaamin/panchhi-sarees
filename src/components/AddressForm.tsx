@@ -1,144 +1,207 @@
-import React, { useState } from 'react';
-import { MapPin, Plus, Edit, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useEffect } from "react";
+import { MapPin, Plus, Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import { getToken } from "../contexts/AuthContext"; // Adjust the path accordingly
 
 export interface Address {
-  id: string;
-  name: string;
+  id?: string;
+  fullName: string;
   phone: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
   state: string;
   pincode: string;
-  isDefault: boolean;
+  country?: string;
+  isDefault?: boolean;
 }
 
 interface AddressFormProps {
-  onAddressSelect?: (address: Address) => void;
+  onAddressSelect?: (address: Address | null) => void;
   showSelection?: boolean;
   allowEditing?: boolean;
 }
 
-const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelection = false, allowEditing = false }) => {
-  const [addresses, setAddresses] = useState<Address[]>(() => {
-    const saved = localStorage.getItem('userAddresses');
-    return saved ? JSON.parse(saved) : [];
-  });
+const AddressForm: React.FC<AddressFormProps> = ({
+  onAddressSelect,
+  showSelection = false,
+  allowEditing = false,
+}) => {
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    pincode: '',
-    isDefault: false
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pincode: "",
+    country: "India",
+    isDefault: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newAddress: Address = {
-      id: editingAddress?.id || Date.now().toString(),
-      ...formData,
-      addressLine2: formData.addressLine2 || undefined
-    };
-
-    let updatedAddresses;
-    if (editingAddress) {
-      updatedAddresses = addresses.map(addr =>
-        addr.id === editingAddress.id ? newAddress : addr
-      );
-    } else {
-      updatedAddresses = [...addresses, newAddress];
-      // Auto-select the newly added address if in selection mode
-      if (showSelection) {
-        setSelectedAddressId(newAddress.id);
-        onAddressSelect?.(newAddress);
+  // Fetch addresses from backend on mount
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          setAddresses([]);
+          return;
+        }
+        const res = await axios.get("http://localhost:5000/api/users/address", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAddresses(res.data.addresses || []);
+      } catch (error) {
+        console.error("Failed to load addresses", error);
+        toast({ title: "Failed to load addresses", variant: "destructive" });
       }
-    }
-
-    // If this is set as default, remove default from others
-    if (formData.isDefault) {
-      updatedAddresses = updatedAddresses.map(addr => ({
-        ...addr,
-        isDefault: addr.id === newAddress.id
-      }));
-    }
-
-    setAddresses(updatedAddresses);
-    localStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
-
-    toast({
-      title: editingAddress ? "Address updated" : "Address added",
-      description: "Your address has been saved successfully.",
-    });
-
-    resetForm();
-  };
+    };
+    fetchAddresses();
+  }, [toast]);
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      phone: '',
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      pincode: '',
-      isDefault: false
+      fullName: "",
+      phone: "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      pincode: "",
+      country: "India",
+      isDefault: false,
     });
     setShowForm(false);
     setEditingAddress(null);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newAddress: Address = {
+      fullName: formData.fullName,
+      phone: formData.phone,
+      addressLine1: formData.addressLine1,
+      addressLine2: formData.addressLine2 || "",
+      city: formData.city,
+      state: formData.state,
+      pincode: formData.pincode,
+      country: formData.country || "India",
+      isDefault: formData.isDefault || false,
+    };
+
+    try {
+      const token = getToken();
+      if (!token) {
+        toast({ title: "Please log in to manage addresses", variant: "destructive" });
+        return;
+      }
+
+      let res;
+
+      if (editingAddress) {
+        // Use id instead of index
+        res = await axios.put(
+          "http://localhost:5000/api/users/address",
+          { id: editingAddress.id, updatedAddress: newAddress },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setAddresses(res.data.addresses);
+        toast({ title: "Address updated", description: "Your address has been updated." });
+      } else {
+        // Add new address
+        res = await axios.post(
+          "http://localhost:5000/api/users/address",
+          newAddress,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setAddresses(res.data.addresses);
+        toast({ title: "Address added", description: "Your address has been saved." });
+      }
+
+      if (showSelection) {
+        // For new addresses, backend assigns id, get last address from backend response
+        const savedAddress = editingAddress
+          ? newAddress
+          : res.data.addresses[res.data.addresses.length - 1];
+
+        setSelectedAddressId(savedAddress.id || "");
+        onAddressSelect?.(savedAddress);
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error("Failed to save address", error);
+      toast({ title: "Failed to save address", variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (addressId: string) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        toast({ title: "Please log in to manage addresses", variant: "destructive" });
+        return;
+      }
+
+      const res = await axios.delete("http://localhost:5000/api/users/address", {
+        data: { id: addressId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setAddresses(res.data.addresses);
+
+      if (selectedAddressId === addressId) {
+        setSelectedAddressId("");
+        onAddressSelect?.(null);
+      }
+
+      toast({ title: "Address deleted", description: "Address removed successfully." });
+    } catch (error) {
+      console.error("Failed to delete address", error);
+      toast({ title: "Failed to delete address", variant: "destructive" });
+    }
+  };
+
   const handleEdit = (address: Address) => {
     setFormData({
-      ...address,
-      addressLine2: address.addressLine2 || ''
+      fullName: address.fullName || "",
+      phone: address.phone || "",
+      addressLine1: address.addressLine1 || "",
+      addressLine2: address.addressLine2 || "",
+      city: address.city || "",
+      state: address.state || "",
+      pincode: address.pincode || "",
+      country: address.country || "India",
+      isDefault: address.isDefault || false,
     });
     setEditingAddress(address);
     setShowForm(true);
   };
 
-  const handleDelete = (addressId: string) => {
-    const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
-    setAddresses(updatedAddresses);
-    localStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
-
-    // If deleted address was selected, clear selection
-    if (selectedAddressId === addressId) {
-      setSelectedAddressId('');
-      onAddressSelect?.(null);
-    }
-
-    toast({
-      title: "Address deleted",
-      description: "Address has been removed successfully.",
-    });
-  };
-
   const handleAddressSelect = (addressId: string) => {
     setSelectedAddressId(addressId);
-    const address = addresses.find(addr => addr.id === addressId);
-    if (address) {
-      onAddressSelect?.(address);
-    }
+    const address = addresses.find((addr) => addr.id === addressId) || null;
+    onAddressSelect?.(address);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#20283a]">
-          {showSelection ? 'Select Delivery Address' : 'Manage Addresses'}
+          {showSelection ? "Select Delivery Address" : "Manage Addresses"}
         </h3>
         <Button
           onClick={() => setShowForm(true)}
@@ -156,10 +219,11 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
             {addresses.map((address) => (
               <div
                 key={address.id}
-                className={`p-4 border rounded-lg transition-colors cursor-pointer ${selectedAddressId === address.id
-                    ? 'border-[#f15a59] bg-[#f15a59]/5'
-                    : 'border-gray-200'
-                  }`}
+                className={`p-4 border rounded-lg transition-colors cursor-pointer ${
+                  selectedAddressId === address.id
+                    ? "border-[#f15a59] bg-[#f15a59]/5"
+                    : "border-gray-200"
+                }`}
                 onClick={() => handleAddressSelect(address.id)}
               >
                 <div className="flex items-start space-x-3">
@@ -168,7 +232,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         <MapPin className="h-4 w-4 text-[#f15a59]" />
-                        <span className="font-semibold">{address.name}</span>
+                        <span className="font-semibold">{address.fullName}</span>
                         {address.isDefault && (
                           <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
                             Default
@@ -210,7 +274,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
                       {address.city}, {address.state} - {address.pincode}
                     </p>
                     <br />
-                    <p className="text-gray-600 text-sm"><b>Phone:</b> {address.phone}</p>
+                    <p className="text-gray-600 text-sm">
+                      <b>Phone:</b> {address.phone}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -220,17 +286,18 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
           addresses.map((address) => (
             <div
               key={address.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${showSelection && selectedAddressId === address.id
-                  ? 'border-[#f15a59] bg-[#f15a59]/5'
-                  : 'border-gray-200 hover:border-gray-300'
-                }`}
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                showSelection && selectedAddressId === address.id
+                  ? "border-[#f15a59] bg-[#f15a59]/5"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
               onClick={() => showSelection && handleAddressSelect(address.id)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <MapPin className="h-4 w-4 text-[#f15a59]" />
-                    <span className="font-semibold">{address.name}</span>
+                    <span className="font-semibold">{address.fullName}</span>
                     {address.isDefault && (
                       <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
                         Default
@@ -248,11 +315,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(address)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(address)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
@@ -274,28 +337,25 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
       {showForm && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h4 className="text-lg font-semibold mb-4">
-            {editingAddress ? 'Edit Address' : 'Add New Address'}
+            {editingAddress ? "Edit Address" : "Add New Address"}
           </h4>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Form fields unchanged */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                 <input
                   type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f15a59]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                 <input
                   type="tel"
                   value={formData.phone}
@@ -307,9 +367,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 1
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
               <input
                 type="text"
                 value={formData.addressLine1}
@@ -320,9 +378,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 2 (Optional)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2 (Optional)</label>
               <input
                 type="text"
                 value={formData.addressLine2}
@@ -333,9 +389,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   value={formData.city}
@@ -346,9 +400,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                 <input
                   type="text"
                   value={formData.state}
@@ -359,9 +411,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pincode
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
                 <input
                   type="text"
                   value={formData.pincode}
@@ -387,7 +437,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onAddressSelect, showSelectio
 
             <div className="flex space-x-3">
               <Button type="submit" className="bg-[#f15a59] hover:bg-[#d63031] text-white">
-                {editingAddress ? 'Update Address' : 'Save Address'}
+                {editingAddress ? "Update Address" : "Save Address"}
               </Button>
               <Button type="button" variant="outline" onClick={resetForm}>
                 Cancel

@@ -29,6 +29,9 @@ const LoginPage = () => {
       if (data.token) {
         localStorage.setItem('token', data.token);
 
+        // Attach token to future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+
         login({
           name: data.name,
           email: data.email,
@@ -36,12 +39,8 @@ const LoginPage = () => {
           token: data.token
         });
 
-        toast({
-          title: 'Welcome back!',
-          description: 'You have been logged in successfully.',
-        });
-
         navigate('/');
+        window.location.reload();
       }
     } catch (error: any) {
       toast({

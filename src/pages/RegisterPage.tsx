@@ -86,6 +86,9 @@ const RegisterPage = () => {
         phone: data.phone,
         token: data.token
       });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      navigate('/');
+      window.location.reload();
 
       toast({
         title: 'Account created!',
