@@ -58,7 +58,7 @@ const CheckoutPage = () => {
       clearCart();
     }
     // Redirect to success page or account page
-    window.location.href = '/account';
+    window.location.href = '/';
   };
 
   const handlePaymentFailure = (error: any) => {
