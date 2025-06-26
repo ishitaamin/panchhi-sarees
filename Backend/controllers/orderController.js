@@ -110,6 +110,8 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
+    console.log(`🔄 Updating order ${id} status to ${status}`);
+    
     const order = await Order.findByIdAndUpdate(
       id,
       { orderStatus: status },
@@ -117,23 +119,48 @@ export const updateOrderStatus = async (req, res) => {
     ).populate("orderItems.product user");
     
     if (!order) {
+      console.error(`❌ Order ${id} not found`);
       return res.status(404).json({ error: "Order not found" });
     }
     
+    console.log(`✅ Order ${id} status updated to ${status}`);
+    
     // Send email notification when order is shipped
-    if (status === 'shipped' && order.user?.email) {
+    if (status === 'shipped') {
+      console.log(`📧 Attempting to send shipped email to ${order.user?.email}`);
+      
+      if (!order.user?.email) {
+        console.error('❌ No user email found for order');
+        return res.status(400).json({ error: "User email not found" });
+      }
+      
       try {
         await sendOrderShippedEmail(order.user.email, order);
-        console.log('✅ Order shipped email sent to:', order.user.email);
+        console.log('✅ Order shipped email sent successfully to:', order.user.email);
+        
+        // Return success response with email confirmation
+        return res.json({ 
+          ...order.toObject(), 
+          emailSent: true,
+          message: "Order status updated and email sent successfully" 
+        });
       } catch (emailError) {
-        console.error('❌ Failed to send order shipped email:', emailError);
-        // Continue with the response even if email fails
+        console.error('❌ Failed to send order shipped email:', emailError.message);
+        console.error('❌ Email error details:', emailError);
+        
+        // Return the order but indicate email failed
+        return res.json({ 
+          ...order.toObject(), 
+          emailSent: false,
+          emailError: emailError.message,
+          message: "Order status updated but email failed to send" 
+        });
       }
     }
     
     res.json(order);
   } catch (error) {
-    console.error("Error updating order status:", error);
+    console.error("❌ Error updating order status:", error);
     res.status(500).json({ error: "Failed to update order status" });
   }
 };

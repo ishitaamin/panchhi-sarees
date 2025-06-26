@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, MapPin, ShoppingBag, Heart, Settings, LogOut, X } from 'lucide-react';
@@ -8,15 +9,36 @@ import AddressForm from '@/components/AddressForm';
 import axios from 'axios';
 
 const AccountPage = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState('profile');
   const [userOrders, setUserOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [pageLoading, setPageLoading] = useState(true);
+
+  // Initialize page loading state
+  useEffect(() => {
+    // Wait for auth context to finish loading
+    if (!authLoading) {
+      setPageLoading(false);
+    }
+  }, [authLoading]);
+
+  // Show loading spinner while page is initializing
+  if (pageLoading || authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your account...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Early return for authentication check
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -69,17 +91,8 @@ const AccountPage = () => {
 
   const handleLogout = () => {
     logout();
-    window.location.reload();
+    window.location.href = '/';
   };
-
-  // Loading state
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-t-transparent border-[#f15a59] rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,11 +105,11 @@ const AccountPage = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-[#f15a59] rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.name?.charAt(0).toUpperCase()}
+                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#20283a]">{user?.name}</h3>
-                  <p className="text-sm text-gray-600">{user?.email}</p>
+                  <h3 className="font-semibold text-[#20283a]">{user?.name || 'User'}</h3>
+                  <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
                 </div>
               </div>
               
