@@ -16,6 +16,11 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // to parse JSON request bodies
 
+// ✅ UptimeRobot ping route
+app.get("/ping", (req, res) => {
+    res.status(200).send("pong");
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
