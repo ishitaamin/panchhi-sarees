@@ -112,6 +112,7 @@ const Home = () => {
             src={bg1}
             alt="Traditional Indian Fashion"
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
 
@@ -242,6 +243,7 @@ const Home = () => {
                   src={offer.image}
                   alt={offer.title}
                   className="w-full h-50 object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <div className="text-center text-white">
@@ -274,6 +276,7 @@ const Home = () => {
                     src={category.image}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-[#20283a] group-hover:text-[#f15a59] transition-colors">
@@ -316,6 +319,7 @@ const Home = () => {
               src={sneakpeek}
               alt="Panchhi Sarees Store Interior"
               className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
             />
           </div>
         </div>
@@ -343,6 +347,7 @@ const Home = () => {
                         src={diary.image}
                         alt={`Client Story ${diary.id}`}
                         className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                     </div>
                   </div>

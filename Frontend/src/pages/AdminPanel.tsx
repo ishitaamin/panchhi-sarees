@@ -56,7 +56,7 @@ const AdminPanel = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
-  const [pendingStatusChange, setPendingStatusChange] = useState<{orderId: string, newStatus: string} | null>(null);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{ orderId: string, newStatus: string } | null>(null);
 
   // Fetch products
   useEffect(() => {
@@ -266,8 +266,8 @@ const AdminPanel = () => {
         axios.get(`${API_URL}/api/orders/all`, {
           headers: { Authorization: `Bearer ${token}` }
         })
-        .then((res) => setOrders(res.data))
-        .catch((err) => console.error(err));
+          .then((res) => setOrders(res.data))
+          .catch((err) => console.error(err));
       }
     }
   }, [activeTab]);
@@ -312,27 +312,27 @@ const AdminPanel = () => {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${API_URL}/api/orders/${orderId}/status`, 
+      await axios.put(`${API_URL}/api/orders/${orderId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       // Refresh orders
       const updated = await axios.get(`${API_URL}/api/orders/all`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(updated.data);
-      
+
       if (newStatus === 'shipped') {
         toast({ title: "Order marked as shipped and confirmation email sent to customer" });
       } else {
         toast({ title: "Order status updated successfully" });
       }
     } catch (error: any) {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: "Failed to update order status",
-        variant: "destructive" 
+        variant: "destructive"
       });
     }
   };
@@ -349,16 +349,19 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+          {/* Left Section */}
           <div>
-            <h1 className="text-3xl font-bold text-[#20283a]">Admin Panel</h1>
-            <p className="text-gray-600 mt-2">Welcome, {admin?.username}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#20283a]">Admin Panel</h1>
+            <p className="text-gray-600 mt-1 md:mt-2">Welcome, {admin?.username}</p>
           </div>
-          <div className="flex items-center space-x-4">
+
+          {/* Right Section - Buttons */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
             <Button
               onClick={() => window.open('/', '_blank')}
               variant="outline"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 w-full sm:w-auto"
             >
               <ExternalLink className="h-4 w-4" />
               <span>View Website</span>
@@ -366,7 +369,7 @@ const AdminPanel = () => {
             <Button
               onClick={logoutAdmin}
               variant="outline"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 w-full sm:w-auto"
             >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
@@ -397,20 +400,23 @@ const AdminPanel = () => {
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-[#20283a]">Product Management</h2>
-              <div className="flex space-x-3">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+              <h2 className="text-lg md:text-xl font-semibold text-[#20283a]">
+                Product Management
+              </h2>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
                 <Button
                   onClick={() => window.open('/category/all', '_blank')}
                   variant="outline"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 w-full sm:w-auto"
                 >
                   <Eye className="h-4 w-4" />
                   <span>View All Products</span>
                 </Button>
                 <Button
                   onClick={() => setShowAddProduct(true)}
-                  className="bg-[#f15a59] hover:bg-[#d63031] text-white"
+                  className="bg-[#f15a59] hover:bg-[#d63031] text-white flex items-center justify-center w-full sm:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Product

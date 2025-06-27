@@ -220,26 +220,26 @@ const AddressForm: React.FC<AddressFormProps> = ({
             {addresses.map((address) => (
               <div
                 key={address.id}
-                className={`p-4 border rounded-lg transition-colors cursor-pointer ${
-                  selectedAddressId === address.id
+                className={`p-4 border rounded-lg transition-colors cursor-pointer ${selectedAddressId === address.id
                     ? "border-[#f15a59] bg-[#f15a59]/5"
                     : "border-gray-200"
-                }`}
+                  }`}
                 onClick={() => handleAddressSelect(address.id)}
               >
-                <div className="flex items-start space-x-3">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                   <RadioGroupItem value={address.id} className="mt-1" />
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between mb-2 gap-2">
+                      <div className="flex items-center flex-wrap gap-2">
                         <MapPin className="h-4 w-4 text-[#f15a59]" />
-                        <span className="font-semibold">{address.fullName}</span>
+                        <span className="font-semibold break-words">{address.fullName}</span>
                         {address.isDefault && (
                           <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
                             Default
                           </span>
                         )}
                       </div>
+
                       {allowEditing && (
                         <div className="flex items-center space-x-1">
                           <Button
@@ -267,11 +267,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         </div>
                       )}
                     </div>
-                    <p className="text-gray-600 text-sm">
+
+                    <p className="text-gray-600 text-sm break-words">
                       <b>Address:</b> {address.addressLine1}
                       {address.addressLine2 && `, ${address.addressLine2}`}
                     </p>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-sm break-words">
                       {address.city}, {address.state} - {address.pincode}
                     </p>
                     <br />
@@ -287,25 +288,24 @@ const AddressForm: React.FC<AddressFormProps> = ({
           addresses.map((address) => (
             <div
               key={address.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                showSelection && selectedAddressId === address.id
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${showSelection && selectedAddressId === address.id
                   ? "border-[#f15a59] bg-[#f15a59]/5"
                   : "border-gray-200 hover:border-gray-300"
-              }`}
+                }`}
               onClick={() => showSelection && handleAddressSelect(address.id)}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center flex-wrap gap-2 mb-2">
                     <MapPin className="h-4 w-4 text-[#f15a59]" />
-                    <span className="font-semibold">{address.fullName}</span>
+                    <span className="font-semibold break-words">{address.fullName}</span>
                     {address.isDefault && (
                       <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
                         Default
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600 text-sm break-words">
                     {address.addressLine1}
                     {address.addressLine2 && `, ${address.addressLine2}`}
                   </p>
@@ -315,7 +315,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                   <p className="text-gray-600 text-sm">Phone: {address.phone}</p>
                 </div>
 
-                <div className="flex space-x-2">
+                <div className="flex items-center space-x-2 self-end sm:self-start">
                   <Button variant="outline" size="sm" onClick={() => handleEdit(address)}>
                     <Edit className="h-4 w-4" />
                   </Button>

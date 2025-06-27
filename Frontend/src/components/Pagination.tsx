@@ -24,8 +24,9 @@ const Pagination: React.FC<PaginationProps> = ({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-      <div className="flex items-center space-x-4">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-4 border-t border-gray-200">
+      {/* Items per page + Showing count */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-700">Show</span>
           <select
@@ -44,19 +45,21 @@ const Pagination: React.FC<PaginationProps> = ({
           Showing {startItem} to {endItem} of {totalItems} results
         </span>
       </div>
-      
-      <div className="flex items-center space-x-2">
+
+      {/* Pagination Controls */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
+          className="flex items-center"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Previous
         </Button>
-        
-        <div className="flex items-center space-x-1">
+
+        <div className="flex flex-wrap items-center justify-center gap-1">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <Button
               key={page}
@@ -69,12 +72,13 @@ const Pagination: React.FC<PaginationProps> = ({
             </Button>
           ))}
         </div>
-        
+
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
+          className="flex items-center"
         >
           Next
           <ChevronRight className="h-4 w-4 ml-1" />
