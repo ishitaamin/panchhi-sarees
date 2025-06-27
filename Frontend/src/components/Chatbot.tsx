@@ -69,7 +69,7 @@ const Chatbot = () => {
       return "We have bridal, semi-stitched, and ready-to-wear lehengas in multiple colors and fabrics.";
     }
     if (lower.includes('blouse')) {
-      return "We provide stitched, semi-stitched, and designer blouses. Want to match one with your saree?";
+      return "We provide readymade stitched, semi-stitched, and designer blouses. Want to match one with your saree?";
     }
     if (lower.includes('salwar') || lower.includes('suit')) {
       return "Our salwar suits are available in Punjabi, Anarkali, and straight-cut styles. Want to see our latest arrivals?";
@@ -81,7 +81,7 @@ const Chatbot = () => {
       return "🎉 We currently have up to 50% OFF on selected collections! Don't miss our Summer Sale going on this week.";
     }
     if (lower.includes('price') || lower.includes('cost') || lower.includes('budget')) {
-      return "Our products start at ₹999 and go up to ₹59,999 for premium bridal wear. Tell me your preferred range!";
+      return "Our products start at ₹999 and go up to ₹59,999 for premium bridal wear!";
     }
     if (lower.includes('size')) {
       return "We offer sizes S to XXL for most kurtis and suits. Sarees and lehengas are free-size with adjustable options.";
@@ -96,7 +96,7 @@ const Chatbot = () => {
       return "🚚 We offer pan-India delivery. Standard: 3–5 days | Express: 1–2 days. Free delivery on orders above ₹1999.";
     }
     if (lower.includes('order') || lower.includes('track') || lower.includes('status')) {
-      return "You can track your order via the 'My Orders' section on our website. Need help? Just share your order ID.";
+      return "You can track your order via the 'My Orders' section on our website.";
     }
     if (lower.includes('return') || lower.includes('exchange') || lower.includes('refund')) {
       return "🛍️ We offer 7-day easy returns/exchanges. Items must be unused, in original packaging with tags intact.";

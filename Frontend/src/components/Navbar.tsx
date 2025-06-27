@@ -116,8 +116,8 @@ const Navbar = () => {
                 <WishlistButton />
 
                 <Link to="/cart" className="relative" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="ghost" size="icon">
-                    <ShoppingCart className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className='p-0'>
+                    <ShoppingCart className="h-6 w-6 transform scale-150" />
                     {getTotalItems() > 0 && (
                       <span className="absolute -top-2 -right-2 h-5 w-5 bg-[#f15a59] text-white text-xs rounded-full flex items-center justify-center">
                         {getTotalItems()}
