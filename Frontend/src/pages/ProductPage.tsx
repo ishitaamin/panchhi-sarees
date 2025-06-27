@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '../components/ProductCard';
 import ImageViewer from '../components/ImageViewer';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 type Product = {
   _id: string;
@@ -41,7 +42,7 @@ const ProductPage: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
-    axios.get(`http://localhost:5000/api/products/${id}`)
+    axios.get(`${API_URL}/api/products/${id}`)
       .then(res => setProduct(res.data))
       .catch(err => console.error('Failed to fetch product:', err));
   }, [id]);
@@ -49,7 +50,7 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     if (product?.category) {
       axios
-        .get(`http://localhost:5000/api/products?category=${product.category}`)
+        .get(`${API_URL}/api/products?category=${product.category}`)
         .then(res => {
           const sameCategoryProducts = res.data
             .filter((p: Product) => p._id !== product._id && p.category === product.category)

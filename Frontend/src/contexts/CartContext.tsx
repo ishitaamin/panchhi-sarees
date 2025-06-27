@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from "axios";
 import { getToken } from "./AuthContext"; // Adjust path to your auth token getter
 import { useToast } from "@/hooks/use-toast"; // Adjust if you have a toast system
+import { API_URL } from "../config/env";
 
 export interface CartItem {
   id: string;
@@ -46,7 +47,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await axios.get(`${API_URL}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -80,7 +81,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/users/cart",
+        `${API_URL}/api/users/cart`,
         { productId: item.id, quantity, size: item.size, color: item.color },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -110,7 +111,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!token) return;
 
       const res = await axios.delete(
-        "http://localhost:5000/api/users/cart",
+        `${API_URL}/api/users/cart`,
         {
           data: { productId: id, size, color },
           headers: { Authorization: `Bearer ${token}` },
@@ -151,7 +152,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!token) return;
 
       const res = await axios.post(
-        "http://localhost:5000/api/users/cart",
+        `${API_URL}/api/users/cart`,
         { productId: id, quantity, size, color },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -178,7 +179,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const token = getToken();
       if (!token) return;
 
-      await axios.delete("http://localhost:5000/api/users/cart/all", {
+      await axios.delete(`${API_URL}/api/users/cart/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

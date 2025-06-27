@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 const AdminPanel = () => {
   const { admin, isAdminAuthenticated, logoutAdmin } = useAdminAuth();
@@ -59,7 +60,7 @@ const AdminPanel = () => {
 
   // Fetch products
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get(`${API_URL}/api/products`)
       .then((res) => setProducts(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -171,10 +172,10 @@ const AdminPanel = () => {
       };
 
       if (editingProduct) {
-        await axios.put(`http://localhost:5000/api/products/${editingProduct._id}`, formData, config);
+        await axios.put(`${API_URL}/api/products/${editingProduct._id}`, formData, config);
         toast({ title: "Product Updated" });
       } else {
-        await axios.post("http://localhost:5000/api/products", formData, config);
+        await axios.post(`${API_URL}/api/products`, formData, config);
         toast({ title: "Product Added" });
       }
 
@@ -191,7 +192,7 @@ const AdminPanel = () => {
         size: [],
       });
 
-      const updated = await axios.get('http://localhost:5000/api/products');
+      const updated = await axios.get(`${API_URL}/api/products`);
       setProducts(updated.data);
     } catch (error: any) {
       console.error("❌ Product Add/Edit Error:", error?.response || error);
@@ -231,10 +232,10 @@ const AdminPanel = () => {
         },
       };
 
-      await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+      await axios.delete(`${API_URL}/api/products/${id}`, config);
       toast({ title: "Product Deleted" });
 
-      const updated = await axios.get('http://localhost:5000/api/products');
+      const updated = await axios.get(`${API_URL}/api/products`);
       setProducts(updated.data);
     } catch (err: any) {
       console.error("❌ Product Deletion Error:", err?.response || err);
@@ -262,7 +263,7 @@ const AdminPanel = () => {
     if (activeTab === 'orders') {
       const token = localStorage.getItem('token');
       if (token) {
-        axios.get('http://localhost:5000/api/orders/all', {
+        axios.get(`${API_URL}/api/orders/all`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then((res) => setOrders(res.data))
@@ -311,13 +312,13 @@ const AdminPanel = () => {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      await axios.put(`${API_URL}/api/orders/${orderId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
       // Refresh orders
-      const updated = await axios.get('http://localhost:5000/api/orders/all', {
+      const updated = await axios.get(`${API_URL}/api/orders/all`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(updated.data);

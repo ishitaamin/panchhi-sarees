@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 type Product = {
   _id: string;
@@ -33,7 +34,7 @@ const CategoryPage = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/products')
+      .get(`${API_URL}/api/products`)
       .then(res => setProducts(res.data))
       .catch(err => {
         console.error('Failed to fetch products:', err);

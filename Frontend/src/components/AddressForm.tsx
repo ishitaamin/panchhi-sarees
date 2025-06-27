@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { getToken } from "../contexts/AuthContext"; // Adjust the path accordingly
+import { API_URL } from "../config/env";
 
 export interface Address {
   id?: string;
@@ -57,7 +58,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           setAddresses([]);
           return;
         }
-        const res = await axios.get("http://localhost:5000/api/users/address", {
+        const res = await axios.get(`${API_URL}/api/users/address`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAddresses(res.data.addresses || []);
@@ -112,7 +113,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
       if (editingAddress) {
         // Use id instead of index
         res = await axios.put(
-          "http://localhost:5000/api/users/address",
+          `${API_URL}/api/users/address`,
           { id: editingAddress.id, updatedAddress: newAddress },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -122,7 +123,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
       } else {
         // Add new address
         res = await axios.post(
-          "http://localhost:5000/api/users/address",
+          `${API_URL}/api/users/address`,
           newAddress,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -156,7 +157,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         return;
       }
 
-      const res = await axios.delete("http://localhost:5000/api/users/address", {
+      const res = await axios.delete(`${API_URL}/api/users/address`, {
         data: { id: addressId },
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import { Typewriter } from 'react-simple-typewriter';
 import axios from "axios";
+import { API_URL } from "../config/env";
 
 const Home = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
@@ -83,7 +84,7 @@ const Home = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products") // Replace with your live URL if needed
+      .get(`${API_URL}/api/products`) // Replace with your live URL if needed
       .then(res => {
         const latest = res.data.slice(0, 8); // latest 8
         setTrendingProducts(latest);

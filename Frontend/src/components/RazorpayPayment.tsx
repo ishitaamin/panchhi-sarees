@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import {API_URL} from '../config/env'
 
 interface RazorpayPaymentProps {
   amount: number;
@@ -70,7 +71,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/orders/create-razorpay-order', {
+      const res = await fetch(`${API_URL}/api/orders/create-razorpay-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount }),
@@ -91,7 +92,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         handler: async function (response: any) {
           try {
             const token = localStorage.getItem('token');
-            const verifyRes = await fetch('http://localhost:5000/api/orders/verify-payment', {
+            const verifyRes = await fetch(`${API_URL}/api/orders/verify-payment`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

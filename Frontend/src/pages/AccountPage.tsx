@@ -7,6 +7,7 @@ import { useWishlist } from '../contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import AddressForm from '@/components/AddressForm';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 const AccountPage = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -23,7 +24,7 @@ const AccountPage = () => {
 
       const token = localStorage.getItem('token');
       if (token) {
-        axios.get('http://localhost:5000/api/orders/my', {
+        axios.get(`${API_URL}/api/orders/my`, {
           headers: { Authorization: `Bearer ${token}` }
         })
           .then((res) => {

@@ -1,6 +1,7 @@
 // src/contexts/AdminAuthContext.tsx
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
+import {API_URL} from '../config/env'
 
 interface Admin {
   id: string;
@@ -35,7 +36,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const loginAdmin = async (credentials: { username: string; password: string }): Promise<boolean> => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/admin/login', credentials);
+      const { data } = await axios.post(`${API_URL}/api/admin/login`, credentials);
       localStorage.setItem('adminUser', JSON.stringify(data));
       setAdmin(data);
       return true;
@@ -56,7 +57,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     otp: string;
   }): Promise<boolean> => {
     try {
-      const response = await axios.post('http://localhost:5000/api/admin/verify-otp', {
+      const response = await axios.post(`${API_URL}/api/admin/verify-otp`, {
         username,
         email,
         password,

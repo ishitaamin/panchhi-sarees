@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import OTPVerification from '@/components/OTPVerification';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 const RegisterPage = () => {
   const [step, setStep] = useState<'form' | 'otp'>('form');
@@ -47,7 +48,7 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/register', {
+      const { data } = await axios.post(`${API_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -75,7 +76,7 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/verify', {
+      const { data } = await axios.post(`${API_URL}/api/auth/verify`, {
         email: formData.email,
         otp: otp,
       });
@@ -110,7 +111,7 @@ const RegisterPage = () => {
   const handleResendOTP = async () => {
     try {
       setIsLoading(true);
-      await axios.post('http://localhost:5000/api/auth/register', {
+      await axios.post(`${API_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,

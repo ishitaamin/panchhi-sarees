@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { getToken } from './AuthContext'; // Adjust the import path accordingly
 import { useToast } from '@/hooks/use-toast';
+import { API_URL } from '../config/env';
 
 interface WishlistItem {
   _id: string;
@@ -39,7 +40,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (!token) return;
 
       try {
-        const res = await axios.get('http://localhost:5000/api/users/me', {
+        const res = await axios.get(`${API_URL}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setWishlistItems(res.data.wishlist || []);
@@ -53,11 +54,17 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const addToWishlist = async (item: WishlistItem) => {
     const token = getToken();
-    if (!token) return;
+    if (!token) {
+      toast({
+        title: 'Please login to add items to wishlist.',
+        variant: 'destructive', // or your styling for error
+      });
+      return; // stop execution
+    }
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/users/wishlist',
+        `${API_URL}/api/users/wishlist`,
         { productId: item._id },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +85,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/users/wishlist',
+        `${API_URL}/api/users/wishlist`,
         { productId: id },
         {
           headers: { Authorization: `Bearer ${token}` },

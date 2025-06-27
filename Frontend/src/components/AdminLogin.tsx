@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import OTPVerification from './OTPVerification';
 import axios from 'axios';
+import { API_URL } from '../config/env';
 
 const AdminLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -48,7 +49,7 @@ const AdminLogin = () => {
         }
       } else {
         // Send OTP via backend
-        const response = await axios.post('http://localhost:5000/api/admin/register', {
+        const response = await axios.post(`${API_URL}/api/admin/register`, {
           username: formData.username,
           email: formData.email,
           password: formData.password,
@@ -120,7 +121,7 @@ const AdminLogin = () => {
   const handleResendOTP = async () => {
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/admin/register', {
+      await axios.post(`${API_URL}/api/admin/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,

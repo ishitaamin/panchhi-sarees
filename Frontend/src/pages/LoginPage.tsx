@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import axios from 'axios';
+import {API_URL} from '../config/env';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', {
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });

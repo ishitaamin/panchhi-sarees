@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import axios from 'axios'; // ✅ Add axios for fetching
+import axios from 'axios';
+import { API_URL } from '../config/env';
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
@@ -13,7 +14,7 @@ const SearchPage = () => {
   // ✅ Fetch all products once when page loads
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/products') // Replace with your actual API
+      .get(`${API_URL}/api/products`) // Replace with your actual API
       .then(res => setAllProducts(res.data))
       .catch(err => console.error('Failed to fetch products:', err));
   }, []);
