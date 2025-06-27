@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import {API_URL} from '../config/env'
+import PanchhiLogo from '../assets/images/PanchhiLogo.png';
 
 interface RazorpayPaymentProps {
   amount: number;
@@ -87,7 +88,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         currency: data.currency,
         name: 'Panchhi Sarees',
         description: `Payment for ${orderDetails.productName}`,
-        image: '/assets/images/PanchhiLogo.png',
+        image: PanchhiLogo,
         order_id: data.orderId,
         handler: async function (response: any) {
           try {

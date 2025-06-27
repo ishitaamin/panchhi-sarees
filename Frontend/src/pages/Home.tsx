@@ -12,6 +12,17 @@ import {
 import { Typewriter } from 'react-simple-typewriter';
 import axios from "axios";
 import { API_URL } from "../config/env";
+import c1 from '../assets/images/1.png';
+import c2 from '../assets/images/2.png';
+import c3 from '../assets/images/3.png';
+import c4 from '../assets/images/4.png';
+import cover1 from '../assets/images/cover1.jpg';
+import cover2 from '../assets/images/cover2.jpg';
+import client1 from '../assets/images/client1.png';
+import client2 from '../assets/images/client2.png';
+import client3 from '../assets/images/client3.png';
+import sneakpeek from '../assets/images/sneakpeek.png';
+import bg1 from '../assets/images/bg1.jpg';
 
 const Home = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
@@ -21,14 +32,14 @@ const Home = () => {
       id: 1,
       title: "Jazz up for the season - Up to 50% Off",
       subtitle: "With our Spring Summer'25 Collection",
-      image: "../assets/images/cover1.jpg",
+      image: cover1,
       cta: "Shop Now"
     },
     {
       id: 2,
       title: "Find your Sparkle, Find your Style",
       subtitle: "Starting from ₹999",
-      image: "../assets/images/cover2.jpg",
+      image: cover2,
       cta: "Explore"
     }
   ];
@@ -36,25 +47,25 @@ const Home = () => {
   const categories = [
     {
       name: 'Sarees',
-      image: '../assets/images/1.png',
+      image: c1,
       link: '/category/sarees',
       description: 'Traditional & Designer'
     },
     {
       name: 'Kurtis',
-      image: '../assets/images/2.png',
+      image: c2,
       link: '/category/kurtis',
       description: 'Casual & Festive'
     },
     {
       name: 'Lehengas',
-      image: '../assets/images/3.png',
+      image: c3,
       link: '/category/lehengas',
       description: 'Wedding & Party'
     },
     {
       name: 'Bridal Wear',
-      image: '../assets/images/4.png',
+      image: c4,
       link: '/category/bridal',
       description: 'Your Special Day'
     }
@@ -63,15 +74,15 @@ const Home = () => {
   const clientDiaries = [
     {
       id: 1,
-      image: "../assets/images/client1.png",
+      image: client1,
     },
     {
       id: 2,
-      image: "../assets/images/client2.png",
+      image: client2,
     },
     {
       id: 3,
-      image: "../assets/images/client3.png",
+      image: client3,
     }
   ];
 
@@ -98,7 +109,7 @@ const Home = () => {
       <div className="relative h-96 md:h-[500px] bg-gradient-to-r from-[#f15a59]/10 to-[#20283a]/10 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="../assets/images/bg1.jpg"
+            src={bg1}
             alt="Traditional Indian Fashion"
             className="w-full h-full object-cover"
           />
@@ -302,7 +313,7 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center text-[#20283a] mb-8">Sneak Peek in the Shop</h2>
           <div className="relative max-w-5xl mx-auto rounded-lg overflow-hidden shadow-xl group">
             <img
-              src="../assets/images/sneakpeek.png"
+              src={sneakpeek}
               alt="Panchhi Sarees Store Interior"
               className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500"
             />

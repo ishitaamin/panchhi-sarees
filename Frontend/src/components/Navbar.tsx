@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import WishlistButton from './WishlistButton';
+import PanchhiLogo from '../assets/images/PanchhiLogo.png';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/assets/images/PanchhiLogo.png" alt="Panchhi" className="h-14 w-auto max-w-full object-contain" />
+            <img src={PanchhiLogo} alt="Panchhi" className="h-14 w-auto max-w-full object-contain" />
           </Link>
 
           {/* Search Bar */}
