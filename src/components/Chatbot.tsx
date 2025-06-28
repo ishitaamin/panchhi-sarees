@@ -132,13 +132,13 @@ const Chatbot = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 bg-gradient-to-r from-[#f15a59] to-[#20283a] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 ${isOpen ? 'hidden' : 'block'}`}
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-r from-[#f15a59] to-[#20283a] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 ${isOpen ? 'hidden' : 'block'}`}
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-80 h-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col z-50">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] max-w-80 h-[calc(100vh-2rem)] max-h-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col z-50">
           <div className="bg-gradient-to-r from-[#f15a59] to-[#20283a] text-white p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
