@@ -157,13 +157,13 @@ const Home = () => {
                 Shop by Occasion
                 <ChevronDown className="ml-1 h-3 w-3 transition-transform group-hover:rotate-180" />
               </div>
-              <div className="absolute top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
+              <div className="absolute top-full mt-2 w-[40vw] max-w-xs sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
                 <div className="grid gap-1 p-4">
                   <Link to="/category/wedding" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Wedding</Link>
                   <Link to="/category/anniversary" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Anniversary</Link>
                   <Link to="/category/birthday" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Birthday</Link>
-                  <Link to="/category/kitty-party" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Kitty-Party</Link>
-                  <Link to="/category/get-together" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Get Together</Link>
+                  <Link to="/category/kitty-party" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Kitty-Party</Link>
+                  <Link to="/category/get-together" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Get Together</Link>
                   <Link to="/category/cocktail" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Cocktail</Link>
                   <Link to="/category/festive" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Festive</Link>
                   <Link to="/category/evening" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Evening</Link>
@@ -179,7 +179,7 @@ const Home = () => {
                 Shop by Age
                 <ChevronDown className="ml-1 h-3 w-3 transition-transform group-hover:rotate-180" />
               </div>
-              <div className="absolute top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
+              <div className="absolute top-full mt-2 w-[50vw] max-w-xs sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
                 <div className="grid gap-1 p-4">
                   <Link to="/category/teen" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Teens (12–18)</Link>
                   <Link to="/category/adult" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Adults (18–40)</Link>
@@ -194,7 +194,7 @@ const Home = () => {
                 Shop by Fabric
                 <ChevronDown className="ml-1 h-3 w-3 transition-transform group-hover:rotate-180" />
               </div>
-              <div className="absolute top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
+              <div className="absolute top-full mt-2 w-[37vw] max-w-xs sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
                 <div className="grid gap-1 p-4">
                   <Link to="/category/silk" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Silk</Link>
                   <Link to="/category/cotton" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Cotton</Link>
@@ -215,16 +215,16 @@ const Home = () => {
                 Shop by Category
                 <ChevronDown className="ml-1 h-3 w-3 transition-transform group-hover:rotate-180" />
               </div>
-              <div className="absolute top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 right-0 sm:left-0">
+              <div className="absolute top-full mt-2 w-[50vw] max-w-xs sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
                 <div className="grid gap-1 p-4">
                   <Link to="/category/sarees" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Sarees</Link>
                   <Link to="/category/kurtis" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Kurtis</Link>
-                  <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Chaniya Choli</Link>
+                  <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Chaniya Choli</Link>
                   <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Gown</Link>
-                  <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Indo-Western</Link>
+                  <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Indo-Western</Link>
                   <Link to="/category/lehengas" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Lehengas</Link>
-                  <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Bridal Wear</Link>
-                  <Link to="/category/blouse" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm hover:text-[#f15a59]">Readymade Stitched Blouse</Link>
+                  <Link to="/category/bridal" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Bridal Wear</Link>
+                  <Link to="/category/blouse" className="block px-4 py-2 hover:bg-gray-100 rounded text-sm text-wrap break-words ... hover:text-[#f15a59]">Readymade Stitched Blouse</Link>
                 </div>
               </div>
             </div>
