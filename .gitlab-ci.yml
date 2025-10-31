@@ -5,11 +5,16 @@ image: node:18
 
 cache:
   paths:
-    - node_modules/
+    - Backend/node_modules/
+    - Frontend/node_modules/
 
 install_dependencies:
   stage: install
   script:
-    - echo "Installing dependencies..."
+    - echo "Installing dependencies for Backend..."
     - cd Backend
+    - npm install
+    - cd ..
+    - echo "Installing dependencies for Frontend..."
+    - cd Frontend
     - npm install
