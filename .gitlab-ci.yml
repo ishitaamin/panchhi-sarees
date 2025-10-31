@@ -1,0 +1,48 @@
+stages:
+  - test
+  - build
+  - deploy
+
+# Optional: Run React tests (if available)
+test_job:
+  stage: test
+  image: node:18
+  script:
+    - cd frontend
+    - npm install
+    - npm test -- --watchAll=false
+  only:
+    - main
+
+# Build React frontend
+build_frontend:
+  stage: build
+  image: node:18
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/build
+  only:
+    - main
+
+# Deploy frontend to Vercel
+deploy_frontend:
+  stage: deploy
+  image: node:18
+  script:
+    - npm install -g vercel
+    - vercel --token $VERCEL_TOKEN --prod --yes
+  only:
+    - main
+
+# Deploy backend to Render
+deploy_backend:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - 'curl -X POST "https://api.render.com/deploy/srv-srv-d1etm2nfte5s73a77nv0?key=$RENDER_API_KEY"'
+  only:
+    - main
