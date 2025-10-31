@@ -1,86 +1,15 @@
 stages:
   - install
-  - build
-  - test
-  - deploy
 
-# Global variables
-variables:
-  NODE_ENV: production
+image: node:18
 
-# ---------------------------
-# 1️⃣ Install Dependencies
-# ---------------------------
+cache:
+  paths:
+    - node_modules/
+
 install_dependencies:
   stage: install
   script:
-    - echo "Installing backend dependencies..."
+    - echo "Installing dependencies..."
     - cd Backend
     - npm install
-    - cd ../Frontend
-    - echo "Installing frontend dependencies..."
-    - npm install
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - Frontend/node_modules/
-      - Backend/node_modules/
-  only:
-    - main
-
-# ---------------------------
-# 2️⃣ Build Frontend
-# ---------------------------
-build_frontend:
-  stage: build
-  script:
-    - echo "Building frontend..."
-    - cd Frontend
-    - npm run build
-  artifacts:
-    paths:
-      - Frontend/dist/
-  only:
-    - main
-
-# ---------------------------
-# 3️⃣ Test (optional — skip if no tests)
-# ---------------------------
-test_app:
-  stage: test
-  script:
-    - echo "Running backend tests..."
-    - cd Backend
-    - if [ -f package.json ]; then npm test || echo 'No tests found'; fi
-    - echo "Running frontend tests..."
-    - cd ../Frontend
-    - if [ -f package.json ]; then npm test || echo 'No tests found'; fi
-  only:
-    - main
-
-# ---------------------------
-# 4️⃣ Deploy Backend (Render)
-# ---------------------------
-deploy_backend:
-  stage: deploy
-  script:
-    - echo "Triggering redeploy on Render..."
-    - >
-      curl -X POST "https://api.render.com/v1/services/srv-<YOUR_RENDER_SERVICE_ID>/deploys"
-      -H "Accept: application/json"
-      -H "Authorization: Bearer $RENDER_API_KEY"
-  only:
-    - main
-
-# ---------------------------
-# 5️⃣ Deploy Frontend (Vercel)
-# ---------------------------
-deploy_frontend:
-  stage: deploy
-  script:
-    - echo "Deploying frontend to Vercel..."
-    - npm install -g vercel
-    - cd Frontend
-    - vercel --token=$VERCEL_TOKEN --prod --yes
-  only:
-    - main
