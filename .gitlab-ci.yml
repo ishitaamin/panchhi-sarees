@@ -1,5 +1,6 @@
 stages:
   - install
+  - build
 
 image: node:18
 
@@ -7,6 +8,7 @@ cache:
   paths:
     - Backend/node_modules/
     - Frontend/node_modules/
+    - Frontend/dist/
 
 install_dependencies:
   stage: install
@@ -18,3 +20,14 @@ install_dependencies:
     - echo "Installing dependencies for Frontend..."
     - cd Frontend
     - npm install
+
+build_project:
+  stage: build
+  script:
+    - echo "Building Frontend..."
+    - cd Frontend
+    - npm run build
+    - cd ..
+    - echo "Building Backend (if necessary)..."
+    - cd Backend
+    - if [ -f "package.json" ] && grep -q "\"build\"" package.json; then npm run build; else echo "No build script found for Backend, skipping."; fi
