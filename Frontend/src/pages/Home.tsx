@@ -119,7 +119,7 @@ const Home = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
           <div className="text-white max-w-2xl text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
-              Celebrate Your<br />
+              Ishita Your<br />
               <span className="text-[#f15a59] font-normal italic sans">
                 <Typewriter
                   words={['Elegance', 'Style', 'Ethnicity', 'Tradition', 'Grace']}
