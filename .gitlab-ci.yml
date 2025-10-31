@@ -71,7 +71,7 @@ deploy:
     # --- BACKEND DEPLOYMENT (RENDER) ---
     - echo "Deploying Backend to Render..."
     - |
-      curl -X POST "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+      curl -X POST "https://api.render.com/v1/services/srv-d1etm2nfte5s73a77nv0/deploys" \
       -H "accept: application/json" \
       -H "authorization: Bearer $RENDER_API_KEY"
 
