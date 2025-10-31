@@ -64,7 +64,7 @@ deploy:
     - echo "Deploying Frontend to Vercel..."
     - npm install -g vercel
     - cd Frontend
-    - vercel --prod --token=$VERCEL_TOKEN
+    - vercel --prod --yes --token=$VERCEL_TOKEN
     - cd ..
 
     # --- BACKEND DEPLOYMENT (RENDER) ---
@@ -77,3 +77,4 @@ deploy:
     name: production
   only:
     - main
+
