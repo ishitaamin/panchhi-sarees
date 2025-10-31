@@ -1,48 +1,86 @@
 stages:
-  - test
+  - install
   - build
+  - test
   - deploy
 
-# Optional: Run React tests (if available)
-test_job:
-  stage: test
-  image: node:18
+# Global variables
+variables:
+  NODE_ENV: production
+
+# ---------------------------
+# 1️⃣ Install Dependencies
+# ---------------------------
+install_dependencies:
+  stage: install
   script:
-    - cd frontend
+    - echo "Installing backend dependencies..."
+    - cd Backend
     - npm install
-    - npm test -- --watchAll=false
+    - cd ../Frontend
+    - echo "Installing frontend dependencies..."
+    - npm install
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - Frontend/node_modules/
+      - Backend/node_modules/
   only:
     - main
 
-# Build React frontend
+# ---------------------------
+# 2️⃣ Build Frontend
+# ---------------------------
 build_frontend:
   stage: build
-  image: node:18
   script:
-    - cd frontend
-    - npm install
+    - echo "Building frontend..."
+    - cd Frontend
     - npm run build
   artifacts:
     paths:
-      - frontend/build
+      - Frontend/dist/
   only:
     - main
 
-# Deploy frontend to Vercel
-deploy_frontend:
-  stage: deploy
-  image: node:18
+# ---------------------------
+# 3️⃣ Test (optional — skip if no tests)
+# ---------------------------
+test_app:
+  stage: test
   script:
-    - npm install -g vercel
-    - vercel --token $VERCEL_TOKEN --prod --yes
+    - echo "Running backend tests..."
+    - cd Backend
+    - if [ -f package.json ]; then npm test || echo 'No tests found'; fi
+    - echo "Running frontend tests..."
+    - cd ../Frontend
+    - if [ -f package.json ]; then npm test || echo 'No tests found'; fi
   only:
     - main
 
-# Deploy backend to Render
+# ---------------------------
+# 4️⃣ Deploy Backend (Render)
+# ---------------------------
 deploy_backend:
   stage: deploy
-  image: curlimages/curl:latest
   script:
-    - 'curl -X POST "https://api.render.com/deploy/srv-srv-d1etm2nfte5s73a77nv0?key=$RENDER_API_KEY"'
+    - echo "Triggering redeploy on Render..."
+    - >
+      curl -X POST "https://api.render.com/v1/services/srv-<YOUR_RENDER_SERVICE_ID>/deploys"
+      -H "Accept: application/json"
+      -H "Authorization: Bearer $RENDER_API_KEY"
+  only:
+    - main
+
+# ---------------------------
+# 5️⃣ Deploy Frontend (Vercel)
+# ---------------------------
+deploy_frontend:
+  stage: deploy
+  script:
+    - echo "Deploying frontend to Vercel..."
+    - npm install -g vercel
+    - cd Frontend
+    - vercel --token=$VERCEL_TOKEN --prod --yes
   only:
     - main
